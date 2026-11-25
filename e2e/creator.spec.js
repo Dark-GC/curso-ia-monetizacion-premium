@@ -260,3 +260,16 @@ test('commercial proposal and experiment persist without sending or creating cas
  await expect(d.getByLabel('Propuesta comercial lista')).toHaveValue(/50% de anticipo/);const download=page.waitForEvent('download');await d.getByRole('button',{name:'Descargar propuesta TXT'}).click();expect((await download).suggestedFilename()).toBe('propuesta-comercial.txt');
  await page.screenshot({path:testInfo.outputPath('proposal.png'),animations:'disabled',fullPage:true});await d.getByRole('button',{name:'Validación comercial'}).click();await expect(d.getByLabel('Decisión del experimento')).toHaveValue('adjust');await d.getByRole('button',{name:'Cerrar',exact:true}).click();await expect(page.getByText('Cobrado de acuerdos enlazados',{exact:true}).locator('..').getByText(/0\.00/)).toBeVisible();
 });
+
+test('cash correction and period close keep history and prevent double counting',async({page},testInfo)=>{
+ await page.goto('/');await navigate(page,'Resultados');await page.getByRole('button',{name:'Efectivo y cobros'}).click();
+ const d=page.getByRole('dialog');await page.getByRole('button',{name:'Configurar saldo inicial'}).click();await d.getByLabel('Mes de referencia').fill('2026-11');await d.getByLabel('Importe DOP').fill('1000');await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await page.getByRole('button',{name:'Añadir cuenta por cobrar'}).click();await d.getByLabel('Concepto').fill('Servicio QA');await d.getByLabel('Importe DOP').fill('2000');await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await page.getByRole('button',{name:'Ver cobro',exact:true}).click();await d.getByRole('button',{name:'Registrar cobro recibido'}).click();await d.getByLabel('Importe DOP').fill('500');await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await page.getByRole('button',{name:'Ver cobro',exact:true}).click();await d.getByRole('button',{name:'Corregir importe recibido'}).click();await d.getByLabel('Importe DOP').fill('400');await d.getByLabel('Motivo de la corrección').fill('Importe registrado mal');await d.getByLabel('Confirmo esta operación').check();await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await expect(page.getByText('Efectivo calculado',{exact:true}).locator('..').getByText(/1,400/)).toBeVisible();
+ await page.getByRole('button',{name:'Cerrar período y continuar'}).click();await d.getByLabel('Confirmo esta operación').check();await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await expect(page.getByText('Efectivo calculado',{exact:true}).locator('..').getByText(/1,400/)).toBeVisible();
+ await page.reload();await navigate(page,'Resultados');await page.getByRole('button',{name:'Efectivo y cobros'}).click();await page.getByRole('button',{name:'Ver cierre'}).click();await expect(d.getByText('Cobrado en el ciclo',{exact:true}).locator('..').getByText(/400/)).toBeVisible();await page.screenshot({path:testInfo.outputPath('closed-period.png'),animations:'disabled',fullPage:true});await d.getByRole('button',{name:'Cerrar',exact:true}).click();
+ await page.getByRole('button',{name:'Historial de correcciones (1)'}).click();await expect(d.getByText('Importe registrado mal',{exact:true})).toBeVisible();
+});
