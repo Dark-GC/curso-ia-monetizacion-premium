@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {methods,lessons,sources,rankMethods,buildPrompt,finance,parseState,initialState} from '../src/creator-core.js';
+test('identificadores únicos',()=>assert.equal(new Set(methods.map(m=>m.id)).size,methods.length));
+test('referencias válidas',()=>assert.ok(methods.every(m=>m.sources.every(k=>sources[k]))));
+test('presupuesto cero',()=>assert.ok(rankMethods(methods).every(m=>m.capital===0)));
+test('plataforma',()=>assert.equal(rankMethods(methods,{category:'YouTube'}).length,4));
+test('búsqueda',()=>assert.equal(rankMethods(methods,{query:'gaming'}).length,1));
+test('tema vacío',()=>assert.equal(buildPrompt(methods[0],'  '),''));
+test('prompt estructurado',()=>assert.ok(buildPrompt(methods[0],'Pulpos').includes('Tema: Pulpos')));
+test('resultado financiero',()=>assert.deepEqual(finance([{income:1500,cost:300,hours:3}]),{income:1500,cost:300,hours:3,net:1200,perHour:400}));
+test('horas cero',()=>assert.equal(finance([]).perHour,0));
+test('respaldo recuperable',()=>assert.deepEqual(parseState(JSON.stringify(initialState)),initialState));
+test('respaldo inválido',()=>assert.throws(()=>parseState('{"done":[]}')));
+test('rango de evaluaciones',()=>assert.ok(lessons.every(l=>Number.isInteger(l.answer)&&l.answer>=0&&l.answer<l.options.length)));
