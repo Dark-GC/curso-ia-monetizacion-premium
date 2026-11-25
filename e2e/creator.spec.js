@@ -284,5 +284,6 @@ test('all workspace modules fit the viewport and produce visual evidence',async(
  }
  await navigate(page,'Academia');await page.getByRole('button',{name:'Ver recurso',exact:true}).first().click();
  await expect(page.getByRole('dialog').getByRole('link',{name:/Consultar fuente/})).toBeVisible();
+ await expect(page.getByRole('dialog').getByRole('link',{name:/Consultar fuente/})).toHaveAttribute('href','https://krita.org/en/about/license/');
  await page.screenshot({path:testInfo.outputPath('resource-modal.png'),animations:'disabled'});
 });
