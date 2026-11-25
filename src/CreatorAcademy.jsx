@@ -13,13 +13,13 @@ const muted={color:'#aeb7cc'};
 function Tile({children,...props}){return <Card {...props} style={{...panel,...props.style}}><Card.Body>{children}</Card.Body></Card>}
 export default function CreatorAcademy(){
  const [load]=useState(()=>{try{return {data:parseState(localStorage.getItem(KEY)),error:''}}catch{return {data:{...initialState},error:'No fue posible leer el progreso. Exporta o restaura una copia antes de continuar.'}}});
- const [data,setData]=useState(load.data),[storageError,setStorageError]=useState(load.error);
+ const [data,setData]=useState(load.data),[storageError,setStorageError]=useState(load.error),[storageBlocked,setStorageBlocked]=useState(!!load.error);
  const [page,setPage]=useState('Inicio'),[query,setQuery]=useState(''),[category,setCategory]=useState('');
  const [method,setMethod]=useState(null),[lesson,setLesson]=useState(null),[answer,setAnswer]=useState(null),[feedback,setFeedback]=useState('');
  const [studio,setStudio]=useState(methods[0].id),[topic,setTopic]=useState(''),[goal,setGoal]=useState(''),[limits,setLimits]=useState(''),[output,setOutput]=useState('');
  const [notice,setNotice]=useState(''),[confirm,setConfirm]=useState(null),[income,setIncome]=useState(''),[cost,setCost]=useState(''),[hours,setHours]=useState('');
  const [importText,setImportText]=useState('');
- useEffect(()=>{if(load.error)return;try{localStorage.setItem(KEY,JSON.stringify(data));setStorageError('')}catch{setStorageError('No se pudo guardar. Exporta tus datos ahora.')}},[data,load.error]);
+ useEffect(()=>{if(storageBlocked)return;try{localStorage.setItem(KEY,JSON.stringify(data));setStorageError('')}catch{setStorageError('No se pudo guardar. Exporta tus datos ahora.')}},[data,storageBlocked]);
  const go=p=>{setPage(p);setNotice('');window.scrollTo({top:0,behavior:'smooth'})};
  const ranked=rankMethods(methods,{query,category,budget:0}), totals=finance(data.entries);
  const openLesson=l=>{setLesson(l);setAnswer(null);setFeedback('')};
@@ -27,7 +27,7 @@ export default function CreatorAcademy(){
  const toggle=(id,i)=>setData(d=>({...d,projects:d.projects.map(p=>p.id===id?{...p,steps:p.steps.includes(i)?p.steps.filter(x=>x!==i):[...p.steps,i]}:p)}));
  const addEntry=e=>{e.preventDefault();const vals=[income,cost,hours].map(Number);if([income,cost,hours].some(v=>!v.trim())||vals.some(v=>!Number.isFinite(v)||v<0)){setNotice('Completa los tres campos con cantidades válidas no negativas.');return;}setData(d=>({...d,entries:[...d.entries,{id:uid(),income:vals[0],cost:vals[1],hours:vals[2]}]}));setIncome('');setCost('');setHours('');setNotice('Registro guardado.');};
  const exportData=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='monetiza-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
- const restore=()=>{try{const next=parseState(importText);if(!importText.trim())throw Error();setConfirm({title:'Restaurar respaldo',body:'Se reemplazarán los registros actuales de esta academia.',action:()=>{try{localStorage.setItem(KEY,JSON.stringify(next));setData(next);setStorageError('');setImportText('');setNotice('Respaldo restaurado.')}catch{setStorageError('No se pudo guardar el respaldo.')}}})}catch{setNotice('El JSON no tiene un formato válido.')}};
+ const restore=()=>{try{const next=parseState(importText);if(!importText.trim())throw Error();setConfirm({title:'Restaurar respaldo',body:'Se reemplazarán los registros actuales de esta academia.',action:()=>{try{localStorage.setItem(KEY,JSON.stringify(next));setData(next);setStorageBlocked(false);setStorageError('');setImportText('');setNotice('Respaldo restaurado.')}catch{setStorageError('No se pudo guardar el respaldo.')}}})}catch{setNotice('El JSON no tiene un formato válido.')}};
  const generate=()=>{const p=buildPrompt(methods.find(m=>m.id===studio),topic,goal,limits);setOutput(p);setNotice(p?'Prompt preparado. Ejecútalo en tu herramienta IA y verifica el resultado.':'Escribe un tema para continuar.')};
  return <div data-bs-theme="dark" style={{minHeight:'100vh',background:'#090c16',color:'#f4f5ff'}}>
  <Container fluid="xl" className="py-4 px-3 px-md-4">
