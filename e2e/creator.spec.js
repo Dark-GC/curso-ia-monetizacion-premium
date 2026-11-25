@@ -60,3 +60,23 @@ test('older preview data remains readable with labs',async({page})=>{
  await page.getByRole('button',{name:'Crear proyecto del laboratorio'}).click();
  await expect(page.getByRole('heading',{name:'Microdocumental original'})).toBeVisible();
 });
+
+test('research creates and persists user evidence without claims of profit',async({page})=>{
+ await page.goto('/');
+ await page.getByRole('button',{name:'Investigar',exact:true}).click();
+ await page.getByLabel('Tema de investigación').fill('Animación educativa');
+ await page.getByRole('button',{name:'Preparar investigación'}).click();
+ await expect(page.getByLabel('Prompt de investigación')).toHaveValue(/República Dominicana/);
+ await page.getByLabel('URL de evidencia').fill('https://example.com/research');
+ await page.getByLabel('Notas de evidencia').fill('Observación de prueba');
+ await page.getByLabel('Costo adicional').selectOption('zero');
+ await page.getByLabel('Elegibilidad y derechos').selectOption('yes');
+ await page.getByRole('button',{name:'Guardar evidencia'}).click();
+ await expect(page.getByText('Señal de interés; demanda sin validar')).toBeVisible();
+ await page.reload();
+ await page.getByRole('button',{name:'Investigar',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Animación educativa'})).toBeVisible();
+ await page.getByRole('button',{name:'Eliminar evidencia',exact:true}).click();
+ await page.getByRole('button',{name:'Confirmar eliminación'}).click();
+ await expect(page.getByRole('heading',{name:'Animación educativa'})).toHaveCount(0);
+});
