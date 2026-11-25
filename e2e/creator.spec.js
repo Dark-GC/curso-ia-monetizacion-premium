@@ -1,0 +1,34 @@
+import {test,expect} from '@playwright/test';
+test('method to project and persistence',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/');
+ await expect(page.getByRole('heading',{name:'Aprende. Crea. Monetiza.'})).toBeVisible();
+ await page.getByRole('button',{name:'Explorar',exact:true}).click();
+ await page.getByRole('button',{name:'Estudiar método'}).first().click();
+ await expect(page.getByRole('dialog')).toBeVisible();
+ await page.getByRole('button',{name:'Iniciar proyecto'}).click();
+ await expect(page.getByRole('heading',{name:'Mis proyectos'})).toBeVisible();
+ await page.getByRole('button',{name:/Elige un comercio/}).click();
+ await page.reload();await page.getByRole('button',{name:'Proyectos',exact:true}).click();
+ await expect(page.getByRole('button',{name:/✓ Elige un comercio/})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ expect(errors).toEqual([]);
+});
+test('learning, prompts and financial record',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Academia',exact:true}).click();
+ await page.getByRole('button',{name:'Registrar práctica realizada'}).first().click();
+ await expect(page.getByRole('button',{name:'✓ Práctica registrada'})).toBeVisible();
+ await page.getByRole('button',{name:'Crear',exact:true}).click();
+ await page.getByPlaceholder('Ej. Curiosidades científicas').fill('Ciencia');
+ await page.getByPlaceholder('Ej. Adultos interesados en ciencia').fill('Adultos');
+ await page.getByRole('button',{name:'Generar flujo y prompt'}).click();
+ await expect(page.getByRole('textbox',{name:'Prompt listo para tu asistente IA'})).toHaveValue(/Tema: Ciencia/);
+ await page.getByRole('button',{name:'Resultados',exact:true}).click();
+ await page.getByLabel('Pieza o proyecto').fill('Prueba');
+ await page.getByLabel('Ingresos DOP').fill('500');
+ await page.getByLabel('Gastos DOP').fill('100');
+ await page.getByLabel('Visualizaciones').fill('25');
+ await page.getByRole('button',{name:'Registrar resultado'}).click();
+ await expect(page.getByText('Prueba',{exact:true})).toBeVisible();
+ await expect(page.getByText(/Visualizaciones registradas: 25/)).toBeVisible();
+});
