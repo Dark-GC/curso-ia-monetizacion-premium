@@ -100,3 +100,21 @@ test('prompt master saves versions and director generates exact timeline',async(
  await expect(page.getByRole('row').filter({hasText:'E10'})).toContainText('60s');
  await expect(page.getByLabel('Instrucciones de dirección')).toHaveValue(/Un viaje al bosque/);
 });
+
+test('mentor works without native AI',async({page})=>{
+ await page.addInitScript(()=>Object.defineProperty(globalThis,'LanguageModel',{value:undefined,configurable:true}));
+ await page.goto('/');
+ await page.getByRole('button',{name:'Mentor',exact:true}).click();
+ await expect(page.getByText('Este navegador no dispone del motor local.')).toBeVisible();
+ await page.getByLabel('Contexto del mentor').fill('Aprender a crear anuncios');
+ await expect(page.getByLabel('Prompt del mentor')).toHaveValue(/Aprender a crear anuncios/);
+ await expect(page.getByRole('button',{name:'Autorizar descarga y generar'})).toBeDisabled();
+});
+test('mentor native provider integration via injected test double',async({page})=>{
+ await page.addInitScript(()=>Object.defineProperty(globalThis,'LanguageModel',{configurable:true,value:{availability:async()=> 'available',create:async()=>({prompt:async()=> 'Resultado simulado para QA',destroy(){}})}}));
+ await page.goto('/');
+ await page.getByRole('button',{name:'Mentor',exact:true}).click();
+ await page.getByLabel('Contexto del mentor').fill('Guion educativo');
+ await page.getByRole('button',{name:'Generar con IA local'}).click();
+ await expect(page.getByLabel('Respuesta generativa local')).toHaveValue('Resultado simulado para QA');
+});
