@@ -80,3 +80,23 @@ test('research creates and persists user evidence without claims of profit',asyn
  await page.getByRole('button',{name:'Confirmar eliminación'}).click();
  await expect(page.getByRole('heading',{name:'Animación educativa'})).toHaveCount(0);
 });
+
+test('prompt master saves versions and director generates exact timeline',async({page})=>{
+ await page.goto('/');
+ await page.getByRole('button',{name:'Estudio IA',exact:true}).click();
+ await page.getByRole('button',{name:'Guion original',exact:true}).click();
+ await page.getByLabel('Objetivo',{exact:true}).fill('Crear un microdocumental');
+ await page.getByRole('button',{name:'Guardar versión'}).click();
+ await expect(page.getByText('Versión 1',{exact:true})).toBeVisible();
+ await page.reload();
+ await page.getByRole('button',{name:'Estudio IA',exact:true}).click();
+ await page.getByRole('button',{name:'Editar versión'}).click();
+ await expect(page.getByLabel('Objetivo',{exact:true})).toHaveValue('Crear un microdocumental');
+ await page.getByRole('button',{name:'Guardar versión'}).click();
+ await expect(page.getByText('Versión 2',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'AI Director',exact:true}).click();
+ await page.getByLabel('Historia o premisa').fill('Un viaje al bosque');
+ await page.getByRole('button',{name:'Preparar storyboard'}).click();
+ await expect(page.getByRole('row').filter({hasText:'E10'})).toContainText('60s');
+ await expect(page.getByLabel('Instrucciones de dirección')).toHaveValue(/Un viaje al bosque/);
+});
