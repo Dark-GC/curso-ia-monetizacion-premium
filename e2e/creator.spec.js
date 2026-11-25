@@ -82,7 +82,7 @@ test('research creates and persists user evidence without claims of profit',asyn
  await page.reload();
  await navigate(page,'Investigar');
  await expect(page.getByRole('heading',{name:'Animación educativa'})).toBeVisible();
- await page.getByRole('button',{name:'Eliminar evidencia',exact:true}).click();
+ await page.getByRole('button',{name:'Ver evidencia',exact:true}).click();await expect(page.getByRole('dialog').getByText('Observación de prueba',{exact:true})).toBeVisible();await page.getByRole('dialog').getByRole('button',{name:'Eliminar evidencia',exact:true}).click();
  await page.getByRole('button',{name:'Confirmar eliminación'}).click();
  await expect(page.getByRole('heading',{name:'Animación educativa'})).toHaveCount(0);
 });
@@ -96,7 +96,7 @@ test('prompt master saves versions and director generates exact timeline',async(
  await expect(page.getByText('Versión 1',{exact:true})).toBeVisible();
  await page.reload();
  await navigate(page,'Estudio IA');
- await page.getByRole('button',{name:'Editar versión'}).click();
+ await page.getByRole('button',{name:'Ver versión',exact:true}).click();await expect(page.getByRole('dialog').getByLabel('Prompt de la versión')).toHaveValue(/Crear un microdocumental/);await page.getByRole('dialog').getByRole('button',{name:'Editar versión'}).click();
  await expect(page.getByLabel('Objetivo',{exact:true})).toHaveValue('Crear un microdocumental');
  await page.getByRole('button',{name:'Guardar versión'}).click();
  await expect(page.getByText('Versión 2',{exact:true})).toBeVisible();
@@ -131,7 +131,7 @@ test('observed trends filter and feed guided research',async({page})=>{
  await page.getByRole('button',{name:'Estados Unidos',exact:true}).click();
  await page.getByLabel('Categoría de tendencia').selectOption('Videojuegos');
  await expect(page.getByRole('heading',{name:'hollow knight silksong dlc',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Investigar tendencia',exact:true}).click();
+ await page.getByRole('button',{name:'Ver tendencia',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Investigar tendencia',exact:true}).click();
  await expect(page.getByLabel('Tema de investigación')).toHaveValue('hollow knight silksong dlc');
  await expect(page.getByLabel('Prompt de investigación')).toHaveValue(/hollow knight silksong dlc/);
 });
@@ -143,7 +143,7 @@ test('provider report import persists independently and labels provenance',async
  await page.getByLabel('Importar informe de tendencias').setInputFiles({name:'trend-report.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
  await expect(page.getByRole('heading',{name:'AI video model QA fixture',exact:true})).toBeVisible();
  await page.reload();await navigate(page,'Investigar');await page.getByRole('button',{name:'Hugging Face',exact:true}).click();
- await expect(page.getByRole('heading',{name:'AI video model QA fixture',exact:true})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'AI video model QA fixture',exact:true})).toBeVisible();await expect(page.getByText(/Informe importado · procedencia no autenticada/)).toBeVisible();
  await page.getByRole('button',{name:'Volver a captura inicial'}).click();await expect(page.getByRole('heading',{name:'AI video model QA fixture',exact:true})).toHaveCount(0);
 });
 
@@ -272,4 +272,17 @@ test('cash correction and period close keep history and prevent double counting'
  await expect(page.getByText('Efectivo calculado',{exact:true}).locator('..').getByText(/1,400/)).toBeVisible();
  await page.reload();await navigate(page,'Resultados');await page.getByRole('button',{name:'Efectivo y cobros'}).click();await page.getByRole('button',{name:'Ver cierre'}).click();await expect(d.getByText('Cobrado en el ciclo',{exact:true}).locator('..').getByText(/400/)).toBeVisible();await page.screenshot({path:testInfo.outputPath('closed-period.png'),animations:'disabled',fullPage:true});await d.getByRole('button',{name:'Cerrar',exact:true}).click();
  await page.getByRole('button',{name:'Historial de correcciones (1)'}).click();await expect(d.getByText('Importe registrado mal',{exact:true})).toBeVisible();
+});
+
+test('all workspace modules fit the viewport and produce visual evidence',async({page},testInfo)=>{
+ test.setTimeout(90000);await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');
+ for(const [i,name] of ['Inicio','Mi ruta','Explorar','Investigar','Academia','Crear','Estudio IA','Mentor','Proyectos','Resultados'].entries()){
+  if(name!=='Inicio')await navigate(page,name);
+  await expect(page.locator('.os-breadcrumb span')).toHaveText(name);
+  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+  await page.screenshot({path:testInfo.outputPath('module-'+i+'.png'),animations:'disabled',fullPage:false});
+ }
+ await navigate(page,'Academia');await page.getByRole('button',{name:'Ver recurso',exact:true}).first().click();
+ await expect(page.getByRole('dialog').getByRole('link',{name:/Consultar fuente/})).toBeVisible();
+ await page.screenshot({path:testInfo.outputPath('resource-modal.png'),animations:'disabled'});
 });
