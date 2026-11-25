@@ -1,0 +1,28 @@
+name: Creator QA
+on:
+  push:
+    branches: [codex/im001-creator-academy]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: creator-qa-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Runtime
+        run: node --version && npm --version
+      - name: Core tests
+        run: node --test tests/creator-core.test.js
+      - name: Install (no lifecycle scripts)
+        run: npm install --ignore-scripts --no-fund --no-audit
+      - name: Build
+        run: npm run build
+      - name: Dependency audit
+        run: npm audit --audit-level=high
