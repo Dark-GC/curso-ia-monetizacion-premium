@@ -53,7 +53,7 @@ test('older preview data remains readable with labs',async({page})=>{
  await page.goto('/');
  await page.evaluate(()=>localStorage.setItem('monetiza-os-v4-preview',JSON.stringify({done:['prompt'],projects:[],records:[]})));
  await page.reload();
- await expect(page.getByText('1 de 6 prácticas registradas')).toBeVisible();
+ await expect(page.getByText('1 de 10 prácticas registradas')).toBeVisible();
  await page.getByRole('button',{name:'Academia',exact:true}).click();
  await page.getByRole('button',{name:'Abrir laboratorio: Microdocumental original'}).click();
  await expect(page.getByRole('dialog').getByText('0 de 5 criterios registrados')).toBeVisible();
@@ -139,4 +139,16 @@ test('provider report import persists independently and labels provenance',async
  await page.reload();await page.getByRole('button',{name:'Investigar',exact:true}).click();await page.getByRole('button',{name:'Hugging Face',exact:true}).click();
  await expect(page.getByRole('heading',{name:'AI video model QA fixture',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Volver a captura inicial'}).click();await expect(page.getByRole('heading',{name:'AI video model QA fixture',exact:true})).toHaveCount(0);
+});
+
+test('expanded method opens practical seven-day guide and project',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Explorar',exact:true}).click();
+ await page.getByLabel('Buscar método').fill('Catálogos visuales');
+ await page.getByRole('button',{name:'Estudiar método',exact:true}).click();
+ const dialog=page.getByRole('dialog');
+ await expect(dialog.getByRole('heading',{name:'Plan de 7 días'})).toBeVisible();
+ await expect(dialog.getByText(/Día 7 · Revisa evidencia/)).toBeVisible();
+ await expect(dialog.getByLabel('Prompt de la práctica')).toHaveValue(/RD\$0/);
+ await dialog.getByRole('button',{name:'Iniciar proyecto',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Catálogos visuales de productos',exact:true})).toBeVisible();
 });

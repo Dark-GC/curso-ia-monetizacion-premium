@@ -1,8 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {methods,lessons,sources,buildPrompt,totals,validRecord} from '../src/creator-core.js';
-test('six unique methods',()=>{assert.equal(methods.length,6);assert.equal(new Set(methods.map(m=>m.id)).size,6)});
-test('six unique lessons',()=>{assert.equal(lessons.length,6);assert.equal(new Set(lessons.map(l=>l.id)).size,6)});
+test('twelve unique methods',()=>{assert.equal(methods.length,12);assert.equal(new Set(methods.map(m=>m.id)).size,12)});
+test('ten unique lessons',()=>{assert.equal(lessons.length,10);assert.equal(new Set(lessons.map(l=>l.id)).size,10)});
 test('references resolve',()=>assert.ok(methods.every(m=>m.refs.every(k=>sources[k]))));
 test('blank topic rejected',()=>assert.equal(buildPrompt(methods[0],' ','x','9:16'),''));
 test('prompt includes verification',()=>assert.ok(buildPrompt(methods[0],'tema','aud','9:16').includes('No inventes fuentes')));
@@ -54,3 +54,9 @@ const providerReport={checkedAt:'2026-01-01T00:00:00Z',feeds:{HF:{status:'OK',so
 test('provider report accepts known source and bounded plain text',()=>assert.equal(normalizeTrendReport(providerReport).feeds.HF.items[0].title,'Image model'));
 test('provider report rejects spoofed known source',()=>assert.throws(()=>normalizeTrendReport({...providerReport,feeds:{HF:{...providerReport.feeds.HF,source:'https://example.com'}}})));
 test('provider report rejects future date and oversized items',()=>{assert.throws(()=>normalizeTrendReport({...providerReport,checkedAt:'2999-01-01'}));assert.throws(()=>normalizeTrendReport({...providerReport,feeds:{HF:{...providerReport.feeds.HF,items:Array(31).fill(providerReport.feeds.HF.items[0])}}}))});
+
+import {methodGuides,sevenDayPlan,guidePrompt} from '../src/method-guides.js';
+test('every method has a complete practical guide',()=>assert.ok(methods.every(m=>{const g=methodGuides[m.id];return g&&g.how.length===4&&g.sample&&g.measure&&g.minutes>0})));
+test('all guide tools resolve to known learning resources',()=>assert.ok(Object.values(methodGuides).every(g=>g.tools.every(id=>resources.some(r=>r.id===id)))));
+test('weekly guide contains seven ordered actions',()=>{for(const m of methods){const p=sevenDayPlan(m.id);assert.equal(p.length,7);assert.ok(p.every((s,i)=>s.startsWith('Día '+(i+1))))}});
+test('practice prompt includes zero-budget and evidence requirements',()=>{assert.match(guidePrompt('catalog'),/RD\$0/);assert.match(guidePrompt('catalog'),/no inventes ganancias/);assert.equal(guidePrompt('unknown'),'')});
