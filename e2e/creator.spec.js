@@ -236,3 +236,14 @@ test('cash reserve and partial collection persist without mixing actual project 
  await page.screenshot({path:testInfo.outputPath('cash-center.png'),animations:'disabled',fullPage:true});
  await page.getByRole('button',{name:'Resultados reales',exact:true}).click();await expect(page.getByText('Visualizaciones registradas: 0')).toBeVisible();
 });
+
+test('commercial opportunity links one project and one receivable without fictitious income',async({page},testInfo)=>{
+ await page.goto('/');await navigate(page,'Resultados');await page.getByRole('button',{name:'Oportunidades',exact:true}).click();await page.getByRole('button',{name:'Nueva oportunidad'}).click();
+ const d=page.getByRole('dialog');await d.getByLabel('Nombre de la oportunidad').fill('Anuncio comercio QA');await d.getByLabel('Precio propuesto DOP').fill('1500');await d.getByRole('button',{name:'Guardar oportunidad'}).click();
+ await page.getByRole('button',{name:'Ver oportunidad'}).click();await d.getByRole('button',{name:'Crear proyecto vinculado'}).click();await expect(page.getByRole('heading',{name:'Mis proyectos'})).toBeVisible();await page.getByRole('button',{name:'Cerrar proyecto'}).click();
+ await navigate(page,'Resultados');await page.getByRole('button',{name:'Oportunidades',exact:true}).click();await page.getByRole('button',{name:'Ver oportunidad'}).click();await d.getByRole('button',{name:'Confirmar muestra preparada'}).click();await d.getByRole('button',{name:'Confirmar oferta presentada'}).click();await d.getByRole('button',{name:'Confirmar acuerdo real'}).click();await d.getByRole('button',{name:'Crear cuenta por cobrar'}).click();await expect(d.getByRole('button',{name:'Gestionar cobro en Efectivo'})).toBeVisible();await d.getByRole('button',{name:'Gestionar cobro en Efectivo'}).click();
+ await page.getByRole('button',{name:'Ver cobro'}).click();await d.getByRole('button',{name:'Registrar cobro recibido'}).click();await d.getByLabel('Importe DOP').fill('500');await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await page.getByRole('button',{name:'Oportunidades',exact:true}).click();await expect(page.getByText('Cobrado de acuerdos enlazados',{exact:true}).locator('..').getByText(/500/)).toBeVisible();await expect(page.getByText('Por cobrar · no es efectivo',{exact:true}).locator('..').getByText(/1,000/)).toBeVisible();
+ await page.reload();await navigate(page,'Resultados');await page.getByRole('button',{name:'Oportunidades',exact:true}).click();await expect(page.getByRole('heading',{name:'Anuncio comercio QA'})).toBeVisible();await page.screenshot({path:testInfo.outputPath('commercial-engine.png'),animations:'disabled',fullPage:true});
+ await page.getByRole('button',{name:'Resultados reales',exact:true}).click();await expect(page.getByText('Visualizaciones registradas: 0')).toBeVisible();
+});

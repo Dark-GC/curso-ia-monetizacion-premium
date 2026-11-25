@@ -223,3 +223,5 @@ footer .form-label{max-width:440px}
 @media(max-width:345px){.entity-card h3{font-size:.82rem}.entity-card{padding:9px}.entity-top{gap:4px}.entity-symbol{width:28px;height:28px}.entity-action svg{display:none}}
 
 .cash-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 16px}.cash-head>div{flex:1 1 260px;min-width:0}.cash-head h3{font-size:1.2rem}.cash-head p{margin:5px 0 0}.cash-center .entity-grid:empty{display:none}.cash-center .finance-grid strong{overflow-wrap:anywhere}@media(max-width:575px){.cash-head>button{width:100%}.cash-center .finance-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cash-center .finance-grid>div{padding:10px}.cash-center .finance-grid strong{font-size:1rem}}
+
+.finance-tabs>.btn{flex:1 1 auto}@media(max-width:575px){.finance-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.finance-tabs .btn{padding:8px 6px;font-size:.78rem}}
