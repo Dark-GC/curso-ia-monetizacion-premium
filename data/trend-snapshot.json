@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-25T20:21:45.951813+00:00",
+  "checkedAt": "2026-11-25T23:53:30.254312+00:00",
   "notice": "Tendencias generales y publicaciones de proveedores; no prueban demanda comercial, acceso gratuito ni rentabilidad.",
   "feeds": {
     "DO": {
@@ -7,44 +7,44 @@
       "source": "https://trends.google.com/trending/rss?geo=DO",
       "items": [
         {
+          "title": "76ers - heat",
+          "published": "Wed, 25 Nov 2026 13:50:00 -0800"
+        },
+        {
+          "title": "inter - stuttgart",
+          "published": "Wed, 25 Nov 2026 13:50:00 -0800"
+        },
+        {
+          "title": "sporting – man utd",
+          "published": "Wed, 25 Nov 2026 13:50:00 -0800"
+        },
+        {
+          "title": "bono navideño",
+          "published": "Wed, 25 Nov 2026 13:40:00 -0800"
+        },
+        {
+          "title": "club brujas - liverpool",
+          "published": "Wed, 25 Nov 2026 12:40:00 -0800"
+        },
+        {
+          "title": "losc - bayern",
+          "published": "Wed, 25 Nov 2026 12:20:00 -0800"
+        },
+        {
+          "title": "sporting lisboa - manchester united",
+          "published": "Wed, 25 Nov 2026 12:10:00 -0800"
+        },
+        {
+          "title": "paris-sg – roma",
+          "published": "Wed, 25 Nov 2026 12:10:00 -0800"
+        },
+        {
+          "title": "classement sabah football club – fc barcelone",
+          "published": "Wed, 25 Nov 2026 12:00:00 -0800"
+        },
+        {
           "title": "posiciones de sabah futbol klubu contra fc barcelona",
           "published": "Wed, 25 Nov 2026 11:50:00 -0800"
-        },
-        {
-          "title": "psg - roma",
-          "published": "Wed, 25 Nov 2026 11:30:00 -0800"
-        },
-        {
-          "title": "atlético madrid - viking",
-          "published": "Wed, 25 Nov 2026 11:30:00 -0800"
-        },
-        {
-          "title": "uefa champions league",
-          "published": "Wed, 25 Nov 2026 11:30:00 -0800"
-        },
-        {
-          "title": "champions league",
-          "published": "Wed, 25 Nov 2026 11:10:00 -0800"
-        },
-        {
-          "title": "concierto",
-          "published": "Wed, 25 Nov 2026 10:50:00 -0800"
-        },
-        {
-          "title": "liga de campeones de la uefa",
-          "published": "Wed, 25 Nov 2026 10:20:00 -0800"
-        },
-        {
-          "title": "slavia praga - villarreal",
-          "published": "Wed, 25 Nov 2026 09:30:00 -0800"
-        },
-        {
-          "title": "arajet",
-          "published": "Wed, 25 Nov 2026 09:30:00 -0800"
-        },
-        {
-          "title": "inés gómez mont",
-          "published": "Wed, 25 Nov 2026 09:20:00 -0800"
         }
       ]
     },
@@ -53,44 +53,44 @@
       "source": "https://trends.google.com/trending/rss?geo=US",
       "items": [
         {
-          "title": "brock purdy injury",
-          "published": "Wed, 25 Nov 2026 12:00:00 -0800"
+          "title": "canucks vs red wings",
+          "published": "Wed, 25 Nov 2026 15:40:00 -0800"
         },
         {
-          "title": "roma",
-          "published": "Wed, 25 Nov 2026 12:00:00 -0800"
+          "title": "blake corum",
+          "published": "Wed, 25 Nov 2026 15:40:00 -0800"
         },
         {
-          "title": "dragon age",
-          "published": "Wed, 25 Nov 2026 12:00:00 -0800"
+          "title": "konata mumpfield",
+          "published": "Wed, 25 Nov 2026 15:40:00 -0800"
         },
         {
-          "title": "ole miss basketball",
-          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+          "title": "packers inactives",
+          "published": "Wed, 25 Nov 2026 15:40:00 -0800"
         },
         {
-          "title": "xavier basketball",
-          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+          "title": "the pitt season 3",
+          "published": "Wed, 25 Nov 2026 15:40:00 -0800"
         },
         {
-          "title": "nfl teams",
-          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+          "title": "guy fieri",
+          "published": "Wed, 25 Nov 2026 15:40:00 -0800"
         },
         {
-          "title": "hollow knight silksong dlc",
-          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+          "title": "timberwolves vs thunder",
+          "published": "Wed, 25 Nov 2026 15:30:00 -0800"
         },
         {
-          "title": "long beach state basketball",
-          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+          "title": "kevin gausman",
+          "published": "Wed, 25 Nov 2026 15:30:00 -0800"
         },
         {
-          "title": "club brugge",
-          "published": "Wed, 25 Nov 2026 11:40:00 -0800"
+          "title": "barcelona sc - independiente del valle",
+          "published": "Wed, 25 Nov 2026 15:30:00 -0800"
         },
         {
-          "title": "psg",
-          "published": "Wed, 25 Nov 2026 11:30:00 -0800"
+          "title": "foster griffin",
+          "published": "Wed, 25 Nov 2026 15:30:00 -0800"
         }
       ]
     },

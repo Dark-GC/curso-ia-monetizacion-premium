@@ -28,6 +28,7 @@ export const feedCatalog={
  OAI:{name:'OpenAI',type:'Publicaciones del proveedor',url:'https://openai.com/news/rss.xml',page:'https://openai.com/news/'},
  GOOGLE:{name:'Google AI',type:'Publicaciones del proveedor',url:'https://blog.google/technology/ai/rss/',page:'https://blog.google/technology/ai/'}
 };
+export function feedHealth(report){return Object.entries(feedCatalog).map(([id,meta])=>{const f=report.feeds[id];return {id,name:meta.name,status:f?.status||'MISSING',count:f?.items.length||0}})}
 export function normalizeTrendReport(input,now=Date.now()){
  if(!input||typeof input!=='object'||Array.isArray(input)||typeof input.checkedAt!=='string'||!Number.isFinite(Date.parse(input.checkedAt))||Date.parse(input.checkedAt)>now||!input.feeds||typeof input.feeds!=='object')throw Error('Informe inválido');
  const feeds={};for(const [key,meta] of Object.entries(feedCatalog)){const f=input.feeds[key];if(f===undefined)continue;if(!f||!['OK','EMPTY','UNAVAILABLE'].includes(f.status)||f.source!==meta.url||!Array.isArray(f.items)||f.items.length>30)throw Error('Fuente inválida');if(f.status!=='OK'&&f.items.length)throw Error('Estado incompatible');if(f.status==='OK'&&!f.items.length)throw Error('Fuente vacía');

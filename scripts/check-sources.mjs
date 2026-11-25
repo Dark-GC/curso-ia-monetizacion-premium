@@ -24,7 +24,7 @@ let previous={};try{previous=JSON.parse(await readFile(baseline,'utf8')).sources
 const report={checkedAt:new Date().toISOString(),notice:'Huella HTML: cambios pueden ser cosméticos. No valida hechos, políticas ni rentabilidad. Revisión humana requerida.',sources:{}};
 for(const [id,s] of Object.entries(sources)){
  try{const current=await digest(s.url);const old=previous[id]?.sha256;report.sources[id]={...current,status:!old?'BASELINE':old===current.sha256?'UNCHANGED':'REVIEW_REQUIRED'};}
- catch(e){report.sources[id]={status:'UNAVAILABLE',error:String(e.message).slice(0,160),...(previous[id]?.sha256?{sha256:previous[id].sha256}: {})};}
+ catch(e){report.sources[id]={status:'UNAVAILABLE',error:String(e.message).slice(0,160),...(previous[id]?.sha256?{previousSha256:previous[id].sha256}: {})};}
 }
 await writeFile(path,JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify(report,null,2));
