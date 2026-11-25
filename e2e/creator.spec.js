@@ -247,3 +247,16 @@ test('commercial opportunity links one project and one receivable without fictit
  await page.reload();await navigate(page,'Resultados');await page.getByRole('button',{name:'Oportunidades',exact:true}).click();await expect(page.getByRole('heading',{name:'Anuncio comercio QA'})).toBeVisible();await page.screenshot({path:testInfo.outputPath('commercial-engine.png'),animations:'disabled',fullPage:true});
  await page.getByRole('button',{name:'Resultados reales',exact:true}).click();await expect(page.getByText('Visualizaciones registradas: 0')).toBeVisible();
 });
+
+test('commercial proposal and experiment persist without sending or creating cash',async({page},testInfo)=>{
+ await page.goto('/');await navigate(page,'Resultados');await page.getByRole('button',{name:'Oportunidades',exact:true}).click();await page.getByRole('button',{name:'Nueva oportunidad'}).click();
+ const d=page.getByRole('dialog');await d.getByLabel('Nombre de la oportunidad').fill('Propuesta QA');await d.getByLabel('Precio propuesto DOP').fill('1000');await d.getByRole('button',{name:'Guardar oportunidad'}).click();
+ await page.getByRole('button',{name:'Ver oportunidad'}).click();await d.getByRole('button',{name:'Abrir ficha comercial'}).click();
+ for(const [label,value] of [['Destinatario comercial','Comercio QA'],['Entregables y alcance','Anuncio vertical original'],['Plazo y condiciones de entrega','Dos días'],['Revisiones incluidas','Una revisión'],['Condiciones de pago','50% de anticipo'],['Exclusiones y derechos','No incluye pauta']])await d.getByLabel(label,{exact:true}).fill(value);
+ await expect(d.getByLabel('Propuesta comercial lista')).toHaveValue(/1,000/);await expect(d.getByRole('button',{name:'Descargar propuesta TXT'})).toBeDisabled();
+ await d.getByRole('button',{name:'Validación comercial'}).click();for(const [label,value] of [['Hipótesis comercial','La muestra interesa'],['Criterio observable','Respuesta explícita'],['Resultado observado','Sin respuesta'],['Próxima acción','Ajustar propuesta']])await d.getByLabel(label).fill(value);
+ await d.getByLabel('Decisión del experimento').selectOption('adjust');await d.getByRole('button',{name:'Guardar ficha comercial'}).click();
+ await page.reload();await navigate(page,'Resultados');await page.getByRole('button',{name:'Oportunidades',exact:true}).click();await page.getByRole('button',{name:'Ver oportunidad'}).click();await d.getByRole('button',{name:'Abrir ficha comercial'}).click();
+ await expect(d.getByLabel('Propuesta comercial lista')).toHaveValue(/50% de anticipo/);const download=page.waitForEvent('download');await d.getByRole('button',{name:'Descargar propuesta TXT'}).click();expect((await download).suggestedFilename()).toBe('propuesta-comercial.txt');
+ await page.screenshot({path:testInfo.outputPath('proposal.png'),animations:'disabled',fullPage:true});await d.getByRole('button',{name:'Validación comercial'}).click();await expect(d.getByLabel('Decisión del experimento')).toHaveValue('adjust');await d.getByRole('button',{name:'Cerrar',exact:true}).click();await expect(page.getByText('Cobrado de acuerdos enlazados',{exact:true}).locator('..').getByText(/0\.00/)).toBeVisible();
+});

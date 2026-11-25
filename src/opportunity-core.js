@@ -1,5 +1,6 @@
 import {methods} from './creator-core.js';
 import {normalizeCash} from './cash-core.js';
+import {normalizeProposal,normalizeExperiment} from './proposal-core.js';
 export const stages={idea:'Idea',sample:'Muestra preparada',offered:'Oferta presentada',agreed:'Acuerdo confirmado',closed:'No continuada'};
 const next={idea:['sample','closed'],sample:['offered','closed'],offered:['agreed','closed'],agreed:[],closed:[]};
 const idOk=x=>typeof x==='string'&&x.length>0&&x.length<=100;
@@ -11,7 +12,7 @@ export function normalizeOpportunities(v){
  const seen=new Set();
  return v.map(x=>{
  if(!x||!idOk(x.id)||seen.has(x.id)||!textOk(x.title,160)||!x.title.trim()||!methods.some(m=>m.id===x.method)||!Object.hasOwn(stages,x.stage)||!textOk(x.notes,1000)||!amount(x.quote)||!amount(x.cost)||!Number.isInteger(x.minutes)||x.minutes<0||x.minutes>600000||!(x.project===null||idOk(x.project))||!(x.receivable===null||idOk(x.receivable))||x.receivable!==null&&x.stage!=='agreed'||x.stage==='agreed'&&x.quote===0)throw Error('Oportunidad inválida');
- seen.add(x.id);return {id:x.id,title:x.title.trim(),method:x.method,stage:x.stage,notes:x.notes,quote:x.quote,cost:x.cost,minutes:x.minutes,project:x.project,receivable:x.receivable};
+ seen.add(x.id);return {id:x.id,title:x.title.trim(),method:x.method,stage:x.stage,notes:x.notes,quote:x.quote,cost:x.cost,minutes:x.minutes,project:x.project,receivable:x.receivable,proposal:normalizeProposal(x.proposal),experiment:normalizeExperiment(x.experiment)};
  });
 }
 export function advanceOpportunity(x,stage){
