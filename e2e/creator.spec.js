@@ -302,3 +302,14 @@ test('light theme persists and reaches portal dialogs without changing project d
  await d.getByRole('button',{name:'Iniciar proyecto',exact:true}).click();await expect(page.getByRole('heading',{name:'Mis proyectos'})).toBeVisible();await expect(page.locator('.entity-card')).toHaveCount(1);await page.reload();await expect(page.locator('html')).toHaveAttribute('data-bs-theme','light');await navigate(page,'Proyectos');await expect(page.locator('.entity-card')).toHaveCount(1);
  await page.getByRole('button',{name:'Activar tema oscuro',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('data-bs-theme','dark');
 });
+
+test('academy track evidence persists and requires actual note and checklist',async({page},testInfo)=>{
+ await page.goto('/');await navigate(page,'Academia');await page.getByRole('button',{name:'Abrir itinerario: Primer servicio creativo',exact:true}).click();
+ const d=page.getByRole('dialog');await d.getByRole('button',{name:/Diagnosticar antes de diseñar/}).click();
+ for(const label of ['Beneficio verificable','Público y entregable concretos','Permisos y datos pendientes identificados'])await d.getByLabel(label,{exact:true}).check();
+ await d.getByRole('button',{name:'Guardar evidencia',exact:true}).click();await expect(d.getByRole('button',{name:/^○ Diagnosticar/})).toBeVisible();
+ await d.getByRole('button',{name:/Diagnosticar antes de diseñar/}).click();await d.getByLabel('Evidencia de práctica',{exact:true}).fill('Brief ficticio QA: beneficio y permisos revisados.');
+ await d.getByRole('button',{name:'Guardar evidencia',exact:true}).click();await expect(d.getByRole('button',{name:/^✓ Diagnosticar/})).toBeVisible();
+ await d.getByRole('button',{name:'Cerrar itinerario'}).click();await page.reload();await navigate(page,'Academia');await page.getByRole('button',{name:'Abrir itinerario: Primer servicio creativo',exact:true}).click();await d.getByRole('button',{name:/^✓ Diagnosticar/}).click();await expect(d.getByLabel('Evidencia de práctica',{exact:true})).toHaveValue('Brief ficticio QA: beneficio y permisos revisados.');
+ await page.screenshot({path:testInfo.outputPath('academy-practice.png'),animations:'disabled'});await d.getByRole('button',{name:'Volver al itinerario'}).click();await d.getByRole('button',{name:'Estudiar método relacionado'}).click();await expect(page.getByRole('dialog').getByRole('button',{name:'Iniciar proyecto',exact:true})).toBeVisible();
+});
