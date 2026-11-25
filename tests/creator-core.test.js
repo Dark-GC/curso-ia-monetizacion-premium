@@ -27,3 +27,11 @@ test('invalid evidence rejected',()=>{assert.throws(()=>normalizeResearch([{...e
 test('paid and ineligible evidence is not zero-cost',()=>assert.match(researchStatus({...evidenceFixture,cost:'paid'}),/No compatible/));
 test('interest is not proven demand',()=>assert.match(researchStatus(evidenceFixture),/demanda sin validar/));
 test('research prompt demands sources and distinguishes sales',()=>assert.match(researchPrompt('Animación'),/No inventes ingresos/));
+
+import {normalizeFields,inspectPrompt,compilePrompt,normalizePromptLibrary,directorPlan} from '../src/prompt-master.js';
+test('prompt structure checks six required fields',()=>{assert.equal(inspectPrompt({objective:'Crear guion'}).percent,17);assert.equal(inspectPrompt({role:'Editor',objective:'Guion',context:'Adultos',format:'Tabla',constraints:'Original',criteria:'Claro'}).percent,100)});
+test('prompt with no objective does not generate',()=>assert.equal(compilePrompt({role:'Editor'}),''));
+test('prompt adds verification and preserves instructions',()=>assert.match(compilePrompt({objective:'Crear guion',constraints:'Sin copiar'}),/No inventes fuentes/));
+test('prompt library supports old backups and validates revisions',()=>{assert.deepEqual(normalizePromptLibrary(undefined),[]);assert.throws(()=>normalizePromptLibrary([{id:'1',title:'X',revision:0,fields:{objective:'X'}}]));assert.throws(()=>normalizeFields({role:'x'.repeat(241)}))});
+test('director timeline exact and contiguous',()=>{const p=directorPlan({story:'Historia',bible:'Vestuario',duration:61,scenes:12,ratio:'9:16'});assert.equal(p.shots.length,12);assert.equal(p.shots.at(-1).end,61);assert.ok(p.shots.every((s,i)=>s.start===(i?p.shots[i-1].end:0)));assert.match(p.prompt,/Mantén la historia y el vestuario aprobados/)});
+test('director rejects impossible scenes and bad ratio',()=>{const x={story:'Historia',bible:'',duration:15,scenes:20,ratio:'9:16'};assert.equal(directorPlan(x),null);assert.equal(directorPlan({...x,scenes:3,ratio:'foo'}),null)});
