@@ -1,7 +1,7 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {Container,Row,Col,Card,Button,Modal,Form,ProgressBar,Nav,Toast} from 'react-bootstrap';
 import {motion,useReducedMotion} from 'framer-motion';
-import {FiHome,FiCompass,FiSearch,FiBookOpen,FiFeather,FiCpu,FiMessageCircle,FiFolder,FiBarChart2,FiMap,FiDownload,FiArrowUpRight,FiArrowRight,FiLayers,FiActivity,FiShield,FiZap,FiMenu,FiX} from 'react-icons/fi';
+import {FiHome,FiCompass,FiSearch,FiBookOpen,FiFeather,FiCpu,FiMessageCircle,FiFolder,FiBarChart2,FiMap,FiDownload,FiArrowUpRight,FiArrowRight,FiLayers,FiActivity,FiShield,FiZap,FiMenu,FiX,FiSun,FiMoon} from 'react-icons/fi';
 import {methods,lessons,sources,reviewed,buildPrompt,totals,validRecord,platformNotes} from './creator-core.js';
 import {resources,labs,assessLab,normalizeLabProgress,labMethods} from './learning-resources.js';
 import {researchSources,normalizeResearch,researchStatus,researchPrompt} from './research-core.js';
@@ -34,6 +34,8 @@ const panels=['Inicio','Mi ruta','Explorar','Investigar','Academia','Crear','Est
 const navigation=[{name:'Inicio',icon:FiHome,group:'Workspace'},{name:'Mi ruta',icon:FiMap,group:'Workspace'},{name:'Explorar',icon:FiCompass,group:'Aprendizaje'},{name:'Investigar',icon:FiSearch,group:'Aprendizaje'},{name:'Academia',icon:FiBookOpen,group:'Aprendizaje'},{name:'Crear',icon:FiFeather,group:'Producción'},{name:'Estudio IA',icon:FiCpu,group:'Producción'},{name:'Mentor',icon:FiMessageCircle,group:'Producción'},{name:'Proyectos',icon:FiFolder,group:'Gestión'},{name:'Resultados',icon:FiBarChart2,group:'Gestión'}];
 export default function App(){
  const reduced=useReducedMotion();
+ const [theme,setTheme]=useState(()=>{try{return localStorage.getItem('monetiza-theme-v1')==='light'?'light':'dark'}catch{return 'dark'}});
+ useEffect(()=>{document.documentElement.setAttribute('data-bs-theme',theme);document.querySelector('meta[name="theme-color"]')?.setAttribute('content',theme==='light'?'#f4f6fb':'#080d19');try{localStorage.setItem('monetiza-theme-v1',theme)}catch{/* theme remains usable for this session */}},[theme]);
  const [lessonId,setLessonId]=useState(null),[projectId,setProjectId]=useState(null),[recordId,setRecordId]=useState(null);
  const [financeTab,setFinanceTab]=useState('real');
  const [menuOpen,setMenuOpen]=useState(false);const menuButton=useRef(null);
@@ -67,9 +69,9 @@ export default function App(){
  const toggleLabCheck=(lab,i)=>change(v=>{const list=v.labProgress?.[lab.id]||[];return {...v,labProgress:{...v.labProgress,[lab.id]:list.includes(i)?list.filter(n=>n!==i):[...list,i]}}});
  const visible=methods.filter(m=>(filter==='Todos'||m.category===filter)&&(m.title+' '+m.skill).toLowerCase().includes(search.toLowerCase())).sort((a,b)=>b.speed-a.speed);
  const card=(title,children)=><Card className="p-3 p-md-4 h-100"><h3 className="h5 fw-bold">{title}</h3>{children}</Card>;
- return <div className="os-shell" data-bs-theme="dark">
+ return <div className="os-shell" data-bs-theme={theme}>
  <aside className="os-sidebar"><div className="os-brand-row"><div className="os-brand"><span className="os-mark" aria-hidden="true"><FiLayers/></span><div><span className="brand">MONETIZA<span className="brand-accent"> OS</span></span><small>CREATOR INTELLIGENCE</small></div></div><button ref={menuButton} type="button" className="os-menu-toggle" aria-label="Menú de navegación" aria-expanded={menuOpen} aria-controls="os-navigation" onClick={()=>setMenuOpen(v=>!v)}>{menuOpen?<FiX aria-hidden="true"/>:<FiMenu aria-hidden="true"/>}<span>Menú</span></button></div><Nav as="nav" id="os-navigation" className={'os-nav '+(menuOpen?'is-open':'')} aria-label="Navegación">{navigation.map(({name,icon:Icon,group},i)=><React.Fragment key={name}>{(i===0||navigation[i-1].group!==group)&&<span className="os-nav-group">{group}</span>}<Button className={'os-nav-item '+(name===panel?'is-active':'')} variant="link" onClick={()=>navigate(name)} aria-current={name===panel?'page':undefined}><Icon aria-hidden="true"/><span>{name}</span>{name===panel&&<span className="os-nav-indicator" aria-hidden="true"/>}</Button></React.Fragment>)}</Nav><div className="os-sidebar-foot"><span className="os-status-dot"/> Espacio personal <small>Datos en este dispositivo</small></div></aside>
- <div className="os-workspace"><header className="os-topbar"><div className="os-breadcrumb"><small>WORKSPACE</small><span>{panel}</span></div><div className="os-top-actions"><span className="os-preview-tag">V4 · PREVIEW</span><Button variant="outline-light" size="sm" onClick={exportData} disabled={!data}><FiDownload aria-hidden="true"/> <span>Respaldar</span></Button></div></header>
+ <div className="os-workspace"><header className="os-topbar"><div className="os-breadcrumb"><small>WORKSPACE</small><span>{panel}</span></div><div className="os-top-actions"><span className="os-preview-tag">V4 · PREVIEW</span><Button className="os-theme-toggle" variant="outline-light" size="sm" aria-label={theme==='dark'?'Activar tema claro':'Activar tema oscuro'} title={theme==='dark'?'Activar tema claro':'Activar tema oscuro'} onClick={()=>setTheme(t=>t==='dark'?'light':'dark')}>{theme==='dark'?<FiSun aria-hidden="true"/>:<FiMoon aria-hidden="true"/>}</Button><Button variant="outline-light" size="sm" onClick={exportData} disabled={!data}><FiDownload aria-hidden="true"/> <span>Respaldar</span></Button></div></header>
  <Container fluid as="main" className="os-main">
  {(!data||storageError)&&<Card className="p-3 mb-3 border-warning" role="alert"><p>Almacenamiento no disponible o datos dañados. Conserva un respaldo antes de continuar.</p>{!data&&<Button onClick={()=>setDetail({reset:true})}>Iniciar espacio nuevo</Button>}<FilePicker label="Importar respaldo" onChange={importData}/></Card>}
  <motion.div key={panel} initial={reduced?false:{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{duration:reduced?0:.22}}>

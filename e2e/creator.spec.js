@@ -287,3 +287,18 @@ test('all workspace modules fit the viewport and produce visual evidence',async(
  await expect(page.getByRole('dialog').getByRole('link',{name:/Consultar fuente/})).toHaveAttribute('href','https://krita.org/en/about/license/');
  await page.screenshot({path:testInfo.outputPath('resource-modal.png'),animations:'disabled'});
 });
+
+test('light theme persists and reaches portal dialogs without changing project data',async({page},testInfo)=>{
+ await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');
+ await page.getByRole('button',{name:'Activar tema claro',exact:true}).click();
+ await expect(page.locator('html')).toHaveAttribute('data-bs-theme','light');
+ await expect.poll(()=>page.evaluate(()=>getComputedStyle(document.body).color)).toBe('rgb(23, 35, 59)');
+ await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ await page.screenshot({path:testInfo.outputPath('light-home.png'),animations:'disabled',fullPage:false});
+ await navigate(page,'Explorar');await page.getByRole('button',{name:'Estudiar método',exact:true}).first().click();
+ const d=page.getByRole('dialog');await expect(d).toBeVisible();
+ await expect.poll(()=>d.locator('.modal-content').evaluate(e=>getComputedStyle(e).backgroundColor)).toBe('rgb(255, 255, 255)');
+ await page.screenshot({path:testInfo.outputPath('light-method-modal.png'),animations:'disabled'});
+ await d.getByRole('button',{name:'Iniciar proyecto',exact:true}).click();await expect(page.getByRole('heading',{name:'Mis proyectos'})).toBeVisible();await expect(page.locator('.entity-card')).toHaveCount(1);await page.reload();await expect(page.locator('html')).toHaveAttribute('data-bs-theme','light');await navigate(page,'Proyectos');await expect(page.locator('.entity-card')).toHaveCount(1);
+ await page.getByRole('button',{name:'Activar tema oscuro',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('data-bs-theme','dark');
+});
