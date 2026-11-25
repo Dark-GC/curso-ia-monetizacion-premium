@@ -1,442 +1,50 @@
-import React, { useState, useEffect } from 'react'
-import { Container, Navbar, Nav, Button, Card, Row, Col, Modal, ProgressBar, Form, Badge, Tabs, Tab } from 'react-bootstrap'
-import { motion, AnimatePresence } from 'framer-motion'
-import { levels, modules, plan30, promptTemplates } from './data'
-import { FiCheckCircle, FiCircle, FiZap, FiTrendingUp, FiBookOpen, FiTool, FiDollarSign, FiTarget, FiCopy, FiRefreshCw } from 'react-icons/fi'
-
-const STORAGE_KEY = 'ia-monetiza-progress-v3'
-
-export default function App() {
-  const [activeSection, setActiveSection] = useState('inicio')
-  const [completed, setCompleted] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { modules: [], plan: [] }
-    } catch {
-      return { modules: [], plan: [] }
-    }
-  })
-  const [selectedModule, setSelectedModule] = useState(null)
-  const [showModuleModal, setShowModuleModal] = useState(false)
-  const [promptType, setPromptType] = useState('freelance')
-  const [niche, setNiche] = useState('')
-  const [generatedPrompt, setGeneratedPrompt] = useState('')
-  const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(completed))
-  }, [completed])
-
-  const totalModules = modules.length
-  const completedCount = completed.modules.length
-  const progressPercent = Math.round((completedCount / totalModules) * 100)
-
-  const toggleModule = (id) => {
-    setCompleted(prev => {
-      const exists = prev.modules.includes(id)
-      return {
-        ...prev,
-        modules: exists ? prev.modules.filter(m => m !== id) : [...prev.modules, id]
-      }
-    })
-  }
-
-  const togglePlanDay = (day) => {
-    setCompleted(prev => {
-      const exists = prev.plan.includes(day)
-      return {
-        ...prev,
-        plan: exists ? prev.plan.filter(d => d !== day) : [...prev.plan, day]
-      }
-    })
-  }
-
-  const openModule = (mod) => {
-    setSelectedModule(mod)
-    setShowModuleModal(true)
-  }
-
-  const generatePrompt = () => {
-    if (!niche.trim()) {
-      setGeneratedPrompt('Escribe un nicho primero (ej: clínicas dentales, fitness, finanzas personales...)')
-      return
-    }
-    const template = promptTemplates[promptType]
-    setGeneratedPrompt(template(niche.trim()))
-  }
-
-  const copyPrompt = () => {
-    navigator.clipboard.writeText(generatedPrompt)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const resetProgress = () => {
-    if (window.confirm('¿Seguro que quieres reiniciar todo tu progreso?')) {
-      setCompleted({ modules: [], plan: [] })
-    }
-  }
-
-  const scrollTo = (id) => {
-    setActiveSection(id)
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  return (
-    <div className="min-vh-100">
-      {/* Navbar */}
-      <Navbar expand="lg" className="glass sticky-top py-3" variant="dark">
-        <Container>
-          <Navbar.Brand className="brand d-flex align-items-center gap-2 fw-bold">
-            <span style={{ color: '#8b5cf6' }}>◈</span> IA Monetiza
-          </Navbar.Brand>
-          <Navbar.Toggle />
-          <Navbar.Collapse>
-            <Nav className="ms-auto gap-1">
-              {['inicio', 'ruta', 'modulos', 'herramientas', 'progreso', 'ia-helper', 'finanzas'].map(s => (
-                <Nav.Link
-                  key={s}
-                  onClick={() => scrollTo(s)}
-                  className={activeSection === s ? 'text-white fw-semibold' : 'text-secondary'}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {s === 'inicio' && 'Inicio'}
-                  {s === 'ruta' && 'Ruta'}
-                  {s === 'modulos' && 'Módulos'}
-                  {s === 'herramientas' && 'Herramientas'}
-                  {s === 'progreso' && 'Progreso'}
-                  {s === 'ia-helper' && 'IA Helper'}
-                  {s === 'finanzas' && 'Finanzas'}
-                </Nav.Link>
-              ))}
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-
-      {/* Hero */}
-      <section id="inicio" className="section-pad">
-        <Container>
-          <Row className="align-items-center">
-            <Col lg={7}>
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                <Badge bg="dark" className="mb-3 px-3 py-2" style={{ border: '1px solid rgba(139,92,246,0.4)' }}>
-                  Curso Interactivo Premium · 2026
-                </Badge>
-                <h1 className="display-4 fw-bold mb-3">
-                  Domina la IA y<br />
-                  <span className="gradient-text">Monetiza Contenido</span>
-                </h1>
-                <p className="lead text-secondary mb-4" style={{ maxWidth: 540 }}>
-                  Ruta clara, realista y accionable. Desde $0 hasta inversiones seguras.
-                  Con seguimiento de aprendizaje, generador de prompts y métodos actualizados.
-                </p>
-                <div className="d-flex flex-wrap gap-3">
-                  <Button size="lg" onClick={() => scrollTo('ruta')}>Empezar ahora →</Button>
-                  <Button size="lg" variant="outline-light" onClick={() => scrollTo('progreso')}>Ver mi progreso</Button>
-                </div>
-              </motion.div>
-            </Col>
-            <Col lg={5} className="mt-5 mt-lg-0">
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
-                <Card className="p-4 hover-lift">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <span className="text-secondary small">Tu progreso actual</span>
-                    <span className="fw-bold">{progressPercent}%</span>
-                  </div>
-                  <ProgressBar now={progressPercent} className="mb-3" />
-                  <div className="d-flex justify-content-between small text-secondary">
-                    <span>{completedCount} / {totalModules} módulos</span>
-                    <span>{completed.plan.length} / 30 días</span>
-                  </div>
-                </Card>
-              </motion.div>
-            </Col>
-          </Row>
-        </Container>
-      </section>
-
-      {/* Ruta */}
-      <section id="ruta" className="section-pad" style={{ background: 'rgba(255,255,255,0.02)' }}>
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Tu Ruta de Monetización</h2>
-            <p className="text-secondary">Elige según tu tiempo y capital. Todos empiezan gratis.</p>
-          </div>
-          <Row className="g-4">
-            {levels.map((lvl, i) => (
-              <Col key={lvl.id} md={6} lg={3}>
-                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }}>
-                  <Card className="h-100 p-4 hover-lift">
-                    <span className={`badge-level ${lvl.color} mb-3 d-inline-block`}>{lvl.subtitle}</span>
-                    <h4 className="fw-bold">{lvl.title}</h4>
-                    <div className="text-secondary small mb-2">{lvl.time} · {lvl.dedication}</div>
-                    <p className="small text-secondary mb-3">{lvl.description}</p>
-                    <ul className="small mb-4">
-                      {lvl.items.map(item => <li key={item}>{item}</li>)}
-                    </ul>
-                    <Button variant="outline-light" size="sm" className="mt-auto" onClick={() => scrollTo('modulos')}>
-                      Ver módulos
-                    </Button>
-                  </Card>
-                </motion.div>
-              </Col>
-            ))}
-          </Row>
-        </Container>
-      </section>
-
-      {/* Módulos */}
-      <section id="modulos" className="section-pad">
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Módulos del Curso</h2>
-            <p className="text-secondary">Haz clic para abrir el contenido. Marca como completado para guardar tu progreso.</p>
-          </div>
-          <Row className="g-4">
-            {modules.map((mod, i) => {
-              const isDone = completed.modules.includes(mod.id)
-              return (
-                <Col key={mod.id} md={6} lg={4}>
-                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} viewport={{ once: true }}>
-                    <Card className="h-100 p-4 hover-lift" style={{ cursor: 'pointer', borderColor: isDone ? 'rgba(16,185,129,0.4)' : undefined }} onClick={() => openModule(mod)}>
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <span className={`badge-level level-${mod.level}`}>Nivel {mod.level}</span>
-                        <button
-                          className="btn btn-link p-0 text-decoration-none"
-                          onClick={(e) => { e.stopPropagation(); toggleModule(mod.id) }}
-                          title={isDone ? 'Marcar como pendiente' : 'Marcar como completado'}
-                        >
-                          {isDone ? <FiCheckCircle size={22} color="#10b981" /> : <FiCircle size={22} color="#555" />}
-                        </button>
-                      </div>
-                      <h5 className="fw-bold">{mod.title}</h5>
-                      <p className="small text-secondary mb-2">{mod.description}</p>
-                      <div className="small text-muted">{mod.time}</div>
-                    </Card>
-                  </motion.div>
-                </Col>
-              )
-            })}
-          </Row>
-        </Container>
-      </section>
-
-      {/* Module Modal */}
-      <Modal show={showModuleModal} onHide={() => setShowModuleModal(false)} size="lg" centered>
-        {selectedModule && (
-          <>
-            <Modal.Header closeButton closeVariant="white">
-              <Modal.Title>
-                <span className={`badge-level level-${selectedModule.level} me-2`}>Nivel {selectedModule.level}</span>
-                {selectedModule.title}
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <div dangerouslySetInnerHTML={{ __html: selectedModule.content }} />
-            </Modal.Body>
-            <Modal.Footer>
-              <Button
-                variant={completed.modules.includes(selectedModule.id) ? 'success' : 'primary'}
-                onClick={() => {
-                  toggleModule(selectedModule.id)
-                  setShowModuleModal(false)
-                }}
-              >
-                {completed.modules.includes(selectedModule.id) ? '✓ Completado' : 'Marcar como completado'}
-              </Button>
-            </Modal.Footer>
-          </>
-        )}
-      </Modal>
-
-      {/* Herramientas */}
-      <section id="herramientas" className="section-pad" style={{ background: 'rgba(255,255,255,0.02)' }}>
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Stack de Herramientas 2026</h2>
-            <p className="text-secondary">Gratis primero. Paga solo cuando generes ingresos.</p>
-          </div>
-          <Row className="g-4">
-            {[
-              { icon: '✍️', title: 'Texto & Investigación', tools: 'ChatGPT · Claude · Gemini · Perplexity', badge: 'Free + Pro' },
-              { icon: '🎨', title: 'Imágenes', tools: 'Canva AI · Leonardo · Ideogram · Flux', badge: 'Free + Pro' },
-              { icon: '🎬', title: 'Video', tools: 'CapCut · Opus Clip · Runway · Kling', badge: 'Free + Pro' },
-              { icon: '🔊', title: 'Voz', tools: 'ElevenLabs · Google TTS · OpenAI TTS', badge: 'Créditos' },
-              { icon: '⚙️', title: 'Automatización', tools: 'n8n · Make · Zapier · Cursor', badge: 'Free tier' },
-              { icon: '📦', title: 'Venta', tools: 'Gumroad · Payhip · Lemon Squeezy · Fiverr', badge: 'Free' },
-            ].map((t, i) => (
-              <Col key={i} md={6} lg={4}>
-                <Card className="p-4 h-100 hover-lift">
-                  <div className="fs-2 mb-2">{t.icon}</div>
-                  <h5 className="fw-bold">{t.title}</h5>
-                  <p className="small text-secondary mb-3">{t.tools}</p>
-                  <Badge bg="dark" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>{t.badge}</Badge>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </Container>
-      </section>
-
-      {/* Progreso */}
-      <section id="progreso" className="section-pad">
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Tu Progreso</h2>
-            <p className="text-secondary">Se guarda automáticamente en este navegador.</p>
-          </div>
-          <Card className="p-4 mb-4">
-            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-              <div>
-                <h5 className="mb-1">{progressPercent}% completado</h5>
-                <div className="small text-secondary">{completedCount} de {totalModules} módulos · {completed.plan.length} de 30 días del plan</div>
-              </div>
-              <Button variant="outline-light" size="sm" onClick={resetProgress}>
-                <FiRefreshCw className="me-1" /> Reiniciar
-              </Button>
-            </div>
-            <ProgressBar now={progressPercent} style={{ height: 14 }} />
-          </Card>
-
-          <h5 className="mb-3">Plan de 30 Días</h5>
-          <Row className="g-2">
-            {plan30.map(item => {
-              const done = completed.plan.includes(item.day)
-              return (
-                <Col key={item.day} xs={12} md={6} lg={4}>
-                  <div
-                    className="d-flex align-items-start gap-2 p-3 rounded-3"
-                    style={{
-                      background: done ? 'rgba(16,185,129,0.08)' : 'var(--bg-card)',
-                      border: `1px solid ${done ? 'rgba(16,185,129,0.3)' : 'var(--border)'}`,
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => togglePlanDay(item.day)}
-                  >
-                    {done ? <FiCheckCircle color="#10b981" size={18} className="mt-1 flex-shrink-0" /> : <FiCircle color="#555" size={18} className="mt-1 flex-shrink-0" />}
-                    <div>
-                      <div className="small fw-semibold">Día {item.day}</div>
-                      <div className="small text-secondary">{item.task}</div>
-                    </div>
-                  </div>
-                </Col>
-              )
-            })}
-          </Row>
-        </Container>
-      </section>
-
-      {/* IA Helper */}
-      <section id="ia-helper" className="section-pad" style={{ background: 'rgba(255,255,255,0.02)' }}>
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">IA Helper · Generador de Prompts</h2>
-            <p className="text-secondary">Prompts profesionales listos para copiar y usar.</p>
-          </div>
-          <Card className="p-4">
-            <Row className="g-3 mb-4">
-              <Col md={4}>
-                <Form.Select value={promptType} onChange={e => setPromptType(e.target.value)}>
-                  <option value="freelance">Servicio freelance</option>
-                  <option value="digital">Producto digital</option>
-                  <option value="faceless">Script video faceless</option>
-                  <option value="social">Posts redes sociales</option>
-                  <option value="promptpack">Pack de prompts para vender</option>
-                </Form.Select>
-              </Col>
-              <Col md={5}>
-                <Form.Control
-                  type="text"
-                  placeholder="Nicho (ej: clínicas dentales, fitness, finanzas...)"
-                  value={niche}
-                  onChange={e => setNiche(e.target.value)}
-                />
-              </Col>
-              <Col md={3}>
-                <Button className="w-100" onClick={generatePrompt}>
-                  <FiZap className="me-1" /> Generar
-                </Button>
-              </Col>
-            </Row>
-
-            {generatedPrompt && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                <div className="p-3 rounded-3 mb-3" style={{ background: 'var(--bg)', border: '1px solid var(--border)', whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem' }}>
-                  {generatedPrompt}
-                </div>
-                <Button variant="outline-light" onClick={copyPrompt}>
-                  <FiCopy className="me-1" /> {copied ? '¡Copiado!' : 'Copiar prompt'}
-                </Button>
-              </motion.div>
-            )}
-          </Card>
-        </Container>
-      </section>
-
-      {/* Finanzas */}
-      <section id="finanzas" className="section-pad">
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Finanzas & Inversión</h2>
-            <p className="text-secondary">Opciones realistas ordenadas por nivel de riesgo.</p>
-          </div>
-          <Row className="g-4">
-            <Col md={4}>
-              <Card className="p-4 h-100">
-                <div className="text-success mb-2"><FiDollarSign size={28} /></div>
-                <h5 className="fw-bold">Bajo riesgo</h5>
-                <ul className="small text-secondary">
-                  <li>ETFs de tecnología (QQQ, VGT)</li>
-                  <li>ETFs temáticos de IA (BOTZ, IRBO)</li>
-                  <li>Fondos indexados globales</li>
-                </ul>
-                <p className="small mt-auto">Mejor opción para la mayoría. Diversificado y de largo plazo.</p>
-              </Card>
-            </Col>
-            <Col md={4}>
-              <Card className="p-4 h-100">
-                <div className="text-warning mb-2"><FiTrendingUp size={28} /></div>
-                <h5 className="fw-bold">Riesgo medio</h5>
-                <ul className="small text-secondary">
-                  <li>Acciones individuales (NVDA, MSFT, GOOGL)</li>
-                  <li>Empresas de software e infraestructura</li>
-                  <li>Pequeña posición en cloud / data centers</li>
-                </ul>
-                <p className="small mt-auto">Solo con capital que no necesites a corto plazo.</p>
-              </Card>
-            </Col>
-            <Col md={4}>
-              <Card className="p-4 h-100">
-                <div className="text-danger mb-2"><FiTarget size={28} /></div>
-                <h5 className="fw-bold">Alto riesgo / No recomendado al inicio</h5>
-                <ul className="small text-secondary">
-                  <li>Criptomonedas especulativas</li>
-                  <li>Startups privadas sin liquidez</li>
-                  <li>Apalancamiento o trading diario</li>
-                </ul>
-                <p className="small mt-auto text-warning">Evita esto hasta tener ingresos estables y experiencia.</p>
-              </Card>
-            </Col>
-          </Row>
-          <Card className="p-4 mt-4" style={{ borderColor: 'rgba(245,158,11,0.3)' }}>
-            <p className="mb-0 small">
-              <strong>Aviso importante:</strong> Esto no es consejo financiero personalizado.
-              Invierte solo dinero que puedas permitirte perder. La mejor inversión al principio es en ti mismo (habilidades + tiempo).
-            </p>
-          </Card>
-        </Container>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-5 text-center" style={{ borderTop: '1px solid var(--border)' }}>
-        <Container>
-          <p className="mb-1">Curso creado para uso personal · Actualizado Nov 2026</p>
-          <p className="small text-secondary mb-3">La constancia gana. No es consejo financiero.</p>
-          <a href="https://github.com/Dark-GC/curso-ia-monetizacion-premium" target="_blank" rel="noreferrer" className="text-secondary small">
-            Ver código en GitHub
-          </a>
-        </Container>
-      </footer>
-    </div>
-  )
+import React,{useEffect,useState} from 'react';
+import {Container,Row,Col,Card,Button,Modal,Form,ProgressBar,Nav,Toast} from 'react-bootstrap';
+import {motion} from 'framer-motion';
+import {methods,lessons,sources,reviewed,buildPrompt,totals,validRecord} from './creator-core.js';
+const key='monetiza-os-v4-preview';
+const empty=()=>({done:[],projects:[],records:[]});
+function normalize(x){
+ if(!x || typeof x!=='object') throw Error('Formato inválido');
+ if(!Array.isArray(x.done)||!Array.isArray(x.projects)||!Array.isArray(x.records)) throw Error('Respaldo inválido');
+ if(x.projects.length>500||x.records.length>1000||!x.records.every(validRecord)) throw Error('Datos fuera de límites');
+ if(!x.projects.every(p=>p&&typeof p.id==='string'&&methods.some(m=>m.id===p.method)&&typeof p.title==='string'&&p.title.length>0&&p.title.length<=160&&Array.isArray(p.done)&&p.done.every(i=>Number.isInteger(i)&&i>=0&&i<methods.find(m=>m.id===p.method).steps.length))) throw Error('Proyecto inválido');
+ return {done:[...new Set(x.done.filter(id=>lessons.some(l=>l.id===id)))],projects:x.projects.map(p=>({id:p.id,method:p.method,title:p.title,done:[...new Set(p.done)]})),records:x.records.map(r=>({id:r.id,title:r.title,income:r.income,cost:r.cost,views:r.views}))};
+}
+const money=n=>new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP'}).format(n);
+const panels=['Inicio','Explorar','Academia','Crear','Proyectos','Resultados'];
+export default function App(){
+ const [data,setData]=useState(()=>{try{const v=localStorage.getItem(key);return v?normalize(JSON.parse(v)):empty()}catch{return null}});
+ const [panel,setPanel]=useState('Inicio'),[filter,setFilter]=useState('Todos'),[search,setSearch]=useState(''),[detail,setDetail]=useState(null),[toast,setToast]=useState(''),[storageError,setStorageError]=useState(false);
+ const [method,setMethod]=useState('ads'),[topic,setTopic]=useState(''),[audience,setAudience]=useState(''),[format,setFormat]=useState('Video vertical 9:16'),[prompt,setPrompt]=useState('');
+ const [entry,setEntry]=useState({title:'',income:'',cost:'',views:''}),[pendingImport,setPendingImport]=useState(null);
+ useEffect(()=>{if(data===null)return;try{localStorage.setItem(key,JSON.stringify(data));setStorageError(false)}catch{setStorageError(true)}},[data]);
+ const d=data||empty(), stats=totals(d.records), chosen=methods.find(m=>m.id===method);
+ const change=f=>{if(data===null){setToast('Recupera o inicia un espacio antes de editar.');return}setData(f)};
+ const navigate=p=>{setPanel(p);window.scrollTo({top:0,behavior:'smooth'})};
+ const addProject=m=>{if(d.projects.length>=500){setToast('Límite de proyectos alcanzado.');return}const title=(topic.trim()||m.title).slice(0,160);change(v=>({...v,projects:[...v.projects,{id:crypto.randomUUID(),method:m.id,title,done:[]}]}));setDetail(null);navigate('Proyectos')};
+ const generate=()=>{const text=buildPrompt(chosen,topic,audience,format);if(!text){setToast('Completa tema y audiencia.');return}setPrompt(text)};
+ const copy=async()=>{try{await navigator.clipboard.writeText(prompt);setToast('Prompt copiado.')}catch{setToast('No se pudo copiar. Selecciona el texto manualmente.')}};
+ const exportData=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='monetiza-respaldo.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ const importData=async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;try{if(file.size>2e6)throw Error('Tamaño');setPendingImport(normalize(JSON.parse(await file.text())))}catch{setToast('Respaldo inválido o demasiado grande. No se cambió nada.')}};
+ const saveEntry=e=>{e.preventDefault();const r={id:crypto.randomUUID(),title:entry.title.trim(),income:Number(entry.income),cost:Number(entry.cost),views:Number(entry.views)};if(!validRecord(r)||d.records.length>=1000){setToast('Revisa los importes y el nombre.');return}change(v=>({...v,records:[...v.records,r]}));setEntry({title:'',income:'',cost:'',views:''});setToast('Registro añadido.')};
+ const sourceLink=id=>sources[id]&&<a key={id} href={sources[id].url} target="_blank" rel="noopener noreferrer" className="d-block mb-2">{sources[id].name} ↗</a>;
+ const visible=methods.filter(m=>(filter==='Todos'||m.category===filter)&&(m.title+' '+m.skill).toLowerCase().includes(search.toLowerCase())).sort((a,b)=>b.speed-a.speed);
+ const card=(title,children)=><Card className="p-3 p-md-4 h-100"><h3 className="h5 fw-bold">{title}</h3>{children}</Card>;
+ return <div className="min-vh-100" data-bs-theme="dark">
+ <header className="glass sticky-top py-3"><Container><div className="d-flex flex-wrap align-items-center justify-content-between gap-2"><span className="brand fw-bold fs-5">◈ MONETIZA OS <small className="text-secondary">/ PREVIEW</small></span><Button variant="outline-light" size="sm" onClick={exportData} disabled={!data}>Respaldar</Button></div><Nav className="flex-nowrap overflow-auto mt-3 gap-2 pb-2" aria-label="Navegación">{panels.map(p=><Button key={p} className="text-nowrap" size="sm" variant={p===panel?'primary':'outline-light'} onClick={()=>navigate(p)} aria-current={p===panel?'page':undefined}>{p}</Button>)}</Nav></Container></header>
+ <Container as="main" className="py-4 py-md-5">
+ {(!data||storageError)&&<Card className="p-3 mb-3 border-warning" role="alert"><p>Almacenamiento no disponible o datos dañados. Conserva un respaldo antes de continuar.</p>{!data&&<Button onClick={()=>setDetail({reset:true})}>Iniciar espacio nuevo</Button>}<Form.Label className="mt-2">Importar respaldo<Form.Control type="file" accept=".json,application/json" onChange={importData}/></Form.Label></Card>}
+ <motion.div key={panel} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{duration:.2}}>
+ {panel==='Inicio'&&<><Card className="p-4 p-md-5 mb-4"><small className="text-info">CREATOR ACADEMY · CERO GASTOS NUEVOS</small><h1 className="display-5 fw-bold mt-2">Aprende. Crea. <span className="gradient-text">Monetiza.</span></h1><p>Aprendizaje práctico y creación original. Los ingresos no están garantizados.</p><div className="d-flex flex-wrap gap-2"><Button onClick={()=>navigate('Explorar')}>Encontrar un método</Button><Button variant="outline-light" onClick={()=>navigate('Academia')}>Aprender hoy</Button></div></Card><Row className="g-3 mb-4"><Col xs={12} sm={4}>{card('Aprendizaje',<><p>{d.done.length} de {lessons.length} prácticas registradas</p><ProgressBar now={d.done.length/lessons.length*100}/></>)}</Col><Col xs={6} sm={4}>{card('Proyectos',<strong className="fs-3">{d.projects.length}</strong>)}</Col><Col xs={6} sm={4}>{card('Resultado registrado',<strong>{money(stats.income-stats.cost)}</strong>)}</Col></Row>{card('Prioridad de hoy',<><p>Si necesitas ingresos pronto, prueba primero una oferta creativa directa. Un canal propio suele requerir más tiempo y elegibilidad.</p><Button onClick={()=>{setFilter('Servicios');navigate('Explorar')}}>Explorar servicios creativos</Button><small className="mt-3 text-secondary">Catálogo editorial consultado: {reviewed}. No es investigación en vivo.</small></>)}</>}
+ {panel==='Explorar'&&<><h1>Radar de métodos</h1><p>Orden orientativo: servicios directos antes que monetización por audiencia. Sin garantía de demanda o ingresos.</p><Form.Control className="mb-3" aria-label="Buscar método" placeholder="Buscar por método o habilidad" value={search} onChange={e=>setSearch(e.target.value)}/><div className="d-flex flex-wrap gap-2 mb-4">{['Todos','Servicios','Canales','Productos'].map(f=><Button key={f} variant={f===filter?'primary':'outline-light'} size="sm" onClick={()=>setFilter(f)}>{f}</Button>)}</div><Row className="g-3">{visible.map(m=><Col md={6} xl={4} key={m.id}>{card(m.title,<><small className="text-info">{m.category} · {m.skill}</small><p className="mt-2">{m.offer}</p><small className="text-secondary mb-3">{m.evidence}</small><Button className="mt-auto" onClick={()=>setDetail(m)}>Estudiar método</Button></>)}</Col>)}</Row>{!visible.length&&<p>No hay coincidencias.</p>}<p className="text-secondary mt-4">Comprueba cuotas gratuitas, derechos de uso y disponibilidad en República Dominicana antes de ejecutar.</p></>}
+ {panel==='Academia'&&<><h1>Academia práctica</h1><p>Completa el ejercicio antes de marcar una lección. El registro es una autoevaluación, no certificación.</p><Row className="g-3">{lessons.map(l=><Col md={6} key={l.id}>{card(l.title,<><p>{l.explanation}</p><strong>Ejercicio</strong><p>{l.exercise}</p><small className="mb-3">Evidencia: {l.check}</small>{l.ref&&sourceLink(l.ref)}<Button disabled={!data} variant={d.done.includes(l.id)?'success':'outline-light'} className="mt-auto" onClick={()=>change(v=>({...v,done:v.done.includes(l.id)?v.done.filter(id=>id!==l.id):[...v.done,l.id]}))}>{d.done.includes(l.id)?'✓ Práctica registrada':'Registrar práctica realizada'}</Button></>)}</Col>)}</Row></>}
+ {panel==='Crear'&&<><h1>Creator Studio</h1><p>Generador local de briefs y prompts. No llama a modelos ni genera multimedia.</p><Card className="p-3 p-md-4"><Form.Label>Método<Form.Select value={method} onChange={e=>{setMethod(e.target.value);setPrompt('')}}>{methods.map(m=><option key={m.id} value={m.id}>{m.title}</option>)}</Form.Select></Form.Label><Form.Label>Tema<Form.Control value={topic} maxLength={160} onChange={e=>{setTopic(e.target.value);setPrompt('')}} placeholder="Ej. Curiosidades científicas"/></Form.Label><Form.Label>Audiencia<Form.Control value={audience} maxLength={160} onChange={e=>{setAudience(e.target.value);setPrompt('')}} placeholder="Ej. Adultos interesados en ciencia"/></Form.Label><Form.Label>Formato<Form.Select value={format} onChange={e=>{setFormat(e.target.value);setPrompt('')}}>{['Video vertical 9:16','Video horizontal 16:9','Carrusel','Producto digital'].map(f=><option key={f}>{f}</option>)}</Form.Select></Form.Label><div className="d-flex flex-wrap gap-2 mt-3"><Button onClick={generate}>Generar flujo y prompt</Button><Button variant="outline-light" disabled={!data} onClick={()=>addProject(chosen)}>Crear proyecto</Button></div>{prompt&&<><Form.Label className="mt-4">Prompt listo para tu asistente IA<Form.Control as="textarea" rows={12} readOnly value={prompt}/></Form.Label><div className="d-flex flex-wrap gap-2"><Button onClick={copy}>Copiar prompt</Button><Button variant="outline-light" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abrir ChatGPT ↗</Button></div></>}</Card></>}
+ {panel==='Proyectos'&&<><h1>Mis proyectos</h1>{!d.projects.length&&<p>Aún no hay proyectos. Crea uno desde Explorar o Creator Studio.</p>}<Row className="g-3">{d.projects.map(p=>{const m=methods.find(x=>x.id===p.method);return <Col md={6} key={p.id}>{card(p.title,<><p>{m.title}</p><ProgressBar now={p.done.length/m.steps.length*100} className="mb-3"/>{m.steps.map((s,i)=><Button key={i} className="text-start mb-2" variant={p.done.includes(i)?'success':'outline-light'} onClick={()=>change(v=>({...v,projects:v.projects.map(x=>x.id===p.id?{...x,done:x.done.includes(i)?x.done.filter(j=>j!==i):[...x.done,i]}:x)}))}>{p.done.includes(i)?'✓':'○'} {s}</Button>)}<small>{m.qa}</small></>)}</Col>})}</Row></>}
+ {panel==='Resultados'&&<><h1>Resultados reales</h1><p>Registra únicamente ingresos y gastos efectivamente realizados. Las cifras son locales, en DOP, antes de impuestos.</p><Row className="g-3 mb-3"><Col sm={4}>{card('Ingresos',<strong>{money(stats.income)}</strong>)}</Col><Col sm={4}>{card('Gastos',<strong>{money(stats.cost)}</strong>)}</Col><Col sm={4}>{card('Diferencia',<strong>{money(stats.income-stats.cost)}</strong>)}</Col></Row><Card className="p-3 mb-3"><Form onSubmit={saveEntry}><Form.Label className="w-100">Pieza o proyecto<Form.Control required maxLength={160} value={entry.title} onChange={e=>setEntry({...entry,title:e.target.value})}/></Form.Label><Row>{[['income','Ingresos DOP'],['cost','Gastos DOP'],['views','Visualizaciones']].map(([k,l])=><Col md={4} key={k}><Form.Label className="w-100">{l}<Form.Control type="number" min="0" max="1000000000" step={k==='views'?'1':'0.01'} value={entry[k]} onChange={e=>setEntry({...entry,[k]:e.target.value})}/></Form.Label></Col>)}</Row><Button type="submit" disabled={!data}>Registrar resultado</Button></Form></Card><p>Visualizaciones registradas: {stats.views.toLocaleString('es-DO')}</p>{d.records.map(r=><Card key={r.id} className="p-3 mb-2"><strong>{r.title}</strong><small>{money(r.income)} ingresos · {money(r.cost)} gastos · {r.views} vistas</small></Card>)}</>}
+ </motion.div><footer className="mt-5 border-top pt-3"><small className="text-secondary">Datos locales sin sincronización. No introduzcas contraseñas ni información sensible. El progreso de V3 se conserva por separado.</small><Form.Label className="d-block mt-2">Restaurar respaldo JSON<Form.Control type="file" accept=".json,application/json" onChange={importData}/></Form.Label></footer></Container>
+ <Modal show={!!detail} onHide={()=>setDetail(null)} centered scrollable size="lg"><Modal.Header closeButton closeVariant="white"><Modal.Title>{detail?.title||'Iniciar espacio nuevo'}</Modal.Title></Modal.Header><Modal.Body>{detail?.reset?<p>Esto reemplazará los datos V4 dañados. No modifica el progreso anterior V3.</p>:detail&&<><p>{detail.offer}</p><p>{detail.evidence}</p><h5>Guía de ejecución</h5><ol>{detail.steps.map(s=><li key={s} className="mb-2">{s}</li>)}</ol><h5>Control de calidad</h5><p>{detail.qa}</p><h5>Fuentes y condiciones</h5>{detail.refs.length?detail.refs.map(sourceLink):<p>No existe evidencia de ventas aportada. Valida mediante una muestra y conversaciones con compradores.</p>}<small>Consulta editorial: {reviewed}. Verifica elegibilidad, cuotas y licencias en tu cuenta.</small></>}</Modal.Body><Modal.Footer>{detail?.reset?<Button onClick={()=>{setData(empty());setDetail(null)}}>Iniciar nuevo</Button>:detail&&<><Button variant="outline-light" onClick={()=>{setMethod(detail.id);setPrompt('');setDetail(null);navigate('Crear')}}>Abrir Creator Studio</Button><Button disabled={!data} onClick={()=>addProject(detail)}>Iniciar proyecto</Button></>}</Modal.Footer></Modal>
+ <Modal show={!!pendingImport} onHide={()=>setPendingImport(null)} centered><Modal.Header closeButton closeVariant="white"><Modal.Title>Restaurar respaldo</Modal.Title></Modal.Header><Modal.Body>Reemplazará los datos V4 actuales. El respaldo contiene {pendingImport?.projects.length} proyectos y {pendingImport?.records.length} registros.</Modal.Body><Modal.Footer><Button variant="outline-light" onClick={()=>setPendingImport(null)}>Cancelar</Button><Button onClick={()=>{setData(pendingImport);setPendingImport(null);setToast('Respaldo restaurado.')}}>Restaurar</Button></Modal.Footer></Modal>
+ <Toast show={!!toast} onClose={()=>setToast('')} delay={4000} autohide className="position-fixed bottom-0 end-0 m-3" style={{zIndex:2000}}><Toast.Header><strong className="me-auto">Monetiza OS</strong></Toast.Header><Toast.Body>{toast}</Toast.Body></Toast>
+ </div>;
 }
