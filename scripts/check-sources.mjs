@@ -7,7 +7,7 @@ const limit=3_000_000;
 async function digest(raw){
  let u=new URL(raw);
  for(let redirects=0;redirects<=3;redirects++){
-  if(u.protocol!=='https:'||!allowed.has(u.hostname)||u.username||u.password||u.port)throw Error('URL fuera de lista');
+  if(u.protocol!=='https:'||!allowed.has(u.hostname)||u.username||u.password||u.port)throw Error('URL fuera de lista: '+u.hostname);
   const response=await fetch(u,{redirect:'manual',signal:AbortSignal.timeout(15000),headers:{accept:'text/html','user-agent':'MonetizaOS-EditorialCheck/1.0'}});
   if([301,302,303,307,308].includes(response.status)){const loc=response.headers.get('location');await response.body?.cancel();if(!loc)throw Error('Redirección sin destino');u=new URL(loc,u);continue;}
   if(!response.ok){await response.body?.cancel();throw Error('HTTP '+response.status);}
@@ -19,7 +19,8 @@ async function digest(raw){
  throw Error('Demasiadas redirecciones');
 }
 const path=process.argv[2]||'source-report.json';
-let previous={};try{previous=JSON.parse(await readFile(path,'utf8')).sources||{};}catch{}
+const baseline=process.argv[3]||path;
+let previous={};try{previous=JSON.parse(await readFile(baseline,'utf8')).sources||{};}catch{}
 const report={checkedAt:new Date().toISOString(),notice:'Huella HTML: cambios pueden ser cosméticos. No valida hechos, políticas ni rentabilidad. Revisión humana requerida.',sources:{}};
 for(const [id,s] of Object.entries(sources)){
  try{const current=await digest(s.url);const old=previous[id]?.sha256;report.sources[id]={...current,status:!old?'BASELINE':old===current.sha256?'UNCHANGED':'REVIEW_REQUIRED'};}
