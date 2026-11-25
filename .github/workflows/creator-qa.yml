@@ -31,6 +31,14 @@ jobs:
       - name: Browser acceptance
         run: npm run test:e2e
 
+      - name: Visual QA screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: monetiza-visual-qa
+          path: test-results/**/*.png
+          retention-days: 7
+          if-no-files-found: warn
       - name: Downloadable static build
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:

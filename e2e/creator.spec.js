@@ -167,3 +167,21 @@ test('adaptive route persists goal and opens the recommended lesson',async({page
  await page.getByRole('button',{name:'Mi ruta',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Practica: Originalidad y monetización',exact:true})).toBeVisible();
 });
+
+test('premium shell fits compact mobile, tablet and desktop and captures evidence',async({page},testInfo)=>{
+ await page.goto('/');
+ await expect(page.getByRole('heading',{name:'Aprende. Crea. Monetiza.'})).toBeVisible();
+ for(const [width,height] of [[320,740],[768,900],[1440,900]]){
+  await page.setViewportSize({width,height});
+  await expect(page.getByRole('navigation',{name:'Navegación'})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+  await page.screenshot({path:testInfo.outputPath('home-'+width+'.png'),animations:'disabled',fullPage:true});
+ }
+ await page.getByRole('button',{name:'Estudio IA',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Prompt Master & AI Director'})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ await page.screenshot({path:testInfo.outputPath('studio-desktop.png'),animations:'disabled',fullPage:true});
+ await page.setViewportSize({width:360,height:800});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ await page.screenshot({path:testInfo.outputPath('studio-mobile.png'),animations:'disabled',fullPage:true});
+});
