@@ -313,3 +313,15 @@ test('academy track evidence persists and requires actual note and checklist',as
  await d.getByRole('button',{name:'Cerrar itinerario'}).click();await page.reload();await navigate(page,'Academia');await page.getByRole('button',{name:'Abrir itinerario: Primer servicio creativo',exact:true}).click();await d.getByRole('button',{name:/^✓ Diagnosticar/}).click();await expect(d.getByLabel('Evidencia de práctica',{exact:true})).toHaveValue('Brief ficticio QA: beneficio y permisos revisados.');
  await page.screenshot({path:testInfo.outputPath('academy-practice.png'),animations:'disabled'});await d.getByRole('button',{name:'Volver al itinerario'}).click();await d.getByRole('button',{name:'Estudiar método relacionado'}).click();await expect(page.getByRole('dialog').getByRole('button',{name:'Iniciar proyecto',exact:true})).toBeVisible();
 });
+
+test('expanded academy finds a production track and preserves its saved evidence',async({page},testInfo)=>{
+ await page.goto('/');await navigate(page,'Academia');const area=page.getByRole('region',{name:'Itinerarios prácticos'});await expect(area.locator('.entity-card')).toHaveCount(12);
+ await area.getByLabel('Buscar itinerario').fill('subtítulos precisos');await expect(area.locator('.entity-card')).toHaveCount(1);
+ await area.getByRole('button',{name:'Abrir itinerario: Subtítulos precisos y accesibilidad',exact:true}).click();
+ const d=page.getByRole('dialog');await d.getByRole('button',{name:/Segmentar y crear un SRT/}).click();
+ await d.getByLabel('Evidencia de práctica').fill('Fixture QA: sincronización y formato comprobados.');
+ for(const name of ['Formato y secuencia válidos','Sin solapamientos','Sincronía comprobada'])await d.getByLabel(name,{exact:true}).check();
+ await d.getByRole('button',{name:'Guardar evidencia'}).click();await expect(d.getByRole('button',{name:/^✓ Segmentar/})).toBeVisible();
+ await page.screenshot({path:testInfo.outputPath('academy-expanded.png'),animations:'disabled'});await d.getByRole('button',{name:'Cerrar itinerario'}).click();await page.reload();await navigate(page,'Academia');
+ await area.getByLabel('Buscar itinerario').fill('subtítulos precisos');await expect(area.getByText('1 de 3 unidades con evidencia')).toBeVisible();await area.getByLabel('Buscar itinerario').fill('zz-no-match');await expect(area.getByText('No hay itinerarios que coincidan con la búsqueda.')).toBeVisible();
+});
