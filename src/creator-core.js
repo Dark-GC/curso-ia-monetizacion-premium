@@ -44,6 +44,6 @@ export function validRecord(r){return r&&typeof r.id==='string'&&typeof r.title=
 
 export const platformNotes = [
  {name:'YouTube',status:'Disponible en RD; sujeto a elegibilidad',detail:'El programa ampliado incluye República Dominicana. Verifica tus requisitos y estado en YouTube Studio. El contenido repetitivo o producido masivamente sin valor original puede ser inelegible.',refs:['youtubeRD','youtube']},
- {name:'Facebook',status:'Disponibilidad individual pendiente',detail:'Meta prioriza producción original, interacción profunda, vistas calificadas y tiempo de reproducción. Comprueba el panel profesional; no se ha confirmado elegibilidad individual ni ingresos.',refs:['meta','metaUpdate']},
+ {name:'Facebook',status:'Disponibilidad individual pendiente',detail:'Meta prioriza producción original, interacción profunda, vistas calificadas y tiempo de reproducción. La edición universitaria Fast Track anunciada el 13 de noviembre de 2026 exige residencia en EE. UU. Comprueba el panel profesional; no se ha confirmado elegibilidad individual ni ingresos.',refs:['meta','metaUpdate']},
  {name:'TikTok',status:'Disponibilidad en RD no confirmada',detail:'Creator Rewards exige contenido original de calidad superior a un minuto y otras condiciones. No contar con ese ingreso sin verificar país y cuenta.',refs:['tiktok']}
 ];
