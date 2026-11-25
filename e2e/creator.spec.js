@@ -32,3 +32,31 @@ test('learning, prompts and financial record',async({page})=>{
  await expect(page.getByText('Prueba',{exact:true})).toBeVisible();
  await expect(page.getByText(/Visualizaciones registradas: 25/)).toBeVisible();
 });
+
+test('lab quality checks persist and launch creator workflow',async({page})=>{
+ await page.goto('/');
+ await page.getByRole('button',{name:'Academia',exact:true}).click();
+ await page.getByRole('button',{name:'Abrir laboratorio: Microanuncio vendible'}).click();
+ const dialog=page.getByRole('dialog');
+ await expect(dialog.getByRole('heading',{name:'Control de calidad'})).toBeVisible();
+ await dialog.getByRole('button',{name:/Oferta clara y comprobable/}).click();
+ await expect(dialog.getByText('1 de 5 criterios registrados')).toBeVisible();
+ await page.reload();
+ await page.getByRole('button',{name:'Academia',exact:true}).click();
+ await page.getByRole('button',{name:'Abrir laboratorio: Microanuncio vendible'}).click();
+ await expect(dialog.getByRole('button',{name:/Oferta clara y comprobable/})).toHaveAttribute('aria-pressed','true');
+ await dialog.getByRole('button',{name:'Preparar prompt'}).click();
+ await expect(page.getByRole('heading',{name:'Creator Studio'})).toBeVisible();
+ await expect(page.getByLabel('Método',{exact:true})).toHaveValue('ads');
+});
+test('older preview data remains readable with labs',async({page})=>{
+ await page.goto('/');
+ await page.evaluate(()=>localStorage.setItem('monetiza-os-v4-preview',JSON.stringify({done:['prompt'],projects:[],records:[]})));
+ await page.reload();
+ await expect(page.getByText('1 de 6 prácticas registradas')).toBeVisible();
+ await page.getByRole('button',{name:'Academia',exact:true}).click();
+ await page.getByRole('button',{name:'Abrir laboratorio: Microdocumental original'}).click();
+ await expect(page.getByRole('dialog').getByText('0 de 5 criterios registrados')).toBeVisible();
+ await page.getByRole('button',{name:'Crear proyecto del laboratorio'}).click();
+ await expect(page.getByRole('heading',{name:'Microdocumental original'})).toBeVisible();
+});
