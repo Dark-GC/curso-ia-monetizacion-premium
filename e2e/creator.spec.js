@@ -222,3 +222,17 @@ test('vertical cards keep details in modals and finance simulations stay separat
  await page.screenshot({path:testInfo.outputPath('finance-planner.png'),animations:'disabled',fullPage:true});
  await page.getByRole('button',{name:'Resultados reales',exact:true}).click();await expect(page.getByText('Visualizaciones registradas: 0')).toBeVisible();
 });
+
+test('cash reserve and partial collection persist without mixing actual project results',async({page},testInfo)=>{
+ await page.goto('/');await navigate(page,'Resultados');await page.getByRole('button',{name:'Efectivo y cobros'}).click();
+ await page.getByRole('button',{name:'Configurar saldo inicial'}).click();
+ let d=page.getByRole('dialog');await d.getByLabel('Mes de referencia').fill('2026-11');await d.getByLabel('Importe DOP').fill('1000');await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await page.getByRole('button',{name:'Añadir gasto esencial'}).click();await d.getByLabel('Concepto').fill('Comida semanal');await d.getByLabel('Importe DOP').fill('700');await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await page.getByRole('button',{name:'Añadir cuenta por cobrar'}).click();await d.getByLabel('Concepto').fill('Diseño acordado');await d.getByLabel('Importe DOP').fill('2000');await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await page.getByRole('button',{name:'Ver cobro',exact:true}).click();await d.getByRole('button',{name:'Registrar cobro recibido'}).click();await d.getByLabel('Importe DOP').fill('500');await d.getByRole('button',{name:'Guardar',exact:true}).click();
+ await expect(page.getByText('Por cobrar · no disponible',{exact:true}).locator('..').getByText(/1,500/)).toBeVisible();
+ await expect(page.getByText('Disponible después de reservar esenciales',{exact:true}).locator('..').getByText(/800/)).toBeVisible();
+ await page.reload();await navigate(page,'Resultados');await page.getByRole('button',{name:'Efectivo y cobros'}).click();await expect(page.getByRole('heading',{name:'Diseño acordado'})).toBeVisible();
+ await page.screenshot({path:testInfo.outputPath('cash-center.png'),animations:'disabled',fullPage:true});
+ await page.getByRole('button',{name:'Resultados reales',exact:true}).click();await expect(page.getByText('Visualizaciones registradas: 0')).toBeVisible();
+});

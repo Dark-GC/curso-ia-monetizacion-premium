@@ -74,3 +74,12 @@ import {planOffer} from '../src/finance-core.js';
 test('offer separates cash, labor and hypothetical sales target',()=>assert.deepEqual(planOffer({price:1000,cost:200,hours:2,hourly:300,target:2400}),{cash:800,labor:600,net:200,minimum:800,effective:400,needed:3,neededHours:6}));
 test('offer never predicts sales for nonpositive cash',()=>assert.equal(planOffer({price:100,cost:200,hours:1,hourly:0,target:500}).needed,null));
 test('offer rejects invalid hours and negative amounts',()=>{assert.equal(planOffer({price:100,cost:0,hours:0,hourly:0,target:100}),null);assert.equal(planOffer({price:-1,cost:0,hours:1,hourly:0,target:100}),null)});
+
+import {blankCash,cents,normalizeCash,cashSummary,settleReceivable} from '../src/cash-core.js';
+test('cash cents preserve decimals and reject invalid money',()=>{assert.equal(cents('12.30'),1230);assert.equal(cents('0.01'),1);assert.equal(cents('-1'),null);assert.equal(cents('2.001'),null)});
+test('old backups receive blank cash state',()=>assert.deepEqual(normalizeCash(undefined),blankCash()));
+const cashFixture={opening:100000,period:'2026-11',essential:[{id:'e1',title:'Comida',kind:'Alimentación',amount:70000,paid:false},{id:'e2',title:'Transporte',kind:'Transporte',amount:10000,paid:true}],receivables:[{id:'r1',title:'Diseño',total:200000,received:20000}]};
+test('pending receivable is excluded from available cash',()=>assert.deepEqual(cashSummary(cashFixture),{spent:10000,reserve:70000,collected:20000,pending:180000,balance:110000,free:40000,shortfall:0}));
+test('partial payment updates cash and remaining receivable',()=>{const d=settleReceivable(cashFixture,'r1',30000);assert.equal(cashSummary(d).balance,140000);assert.equal(cashSummary(d).pending,150000);assert.throws(()=>settleReceivable(d,'r1',150001))});
+test('unknown opening balance is never reported as zero',()=>assert.equal(cashSummary({...cashFixture,opening:null}).balance,null));
+test('reserve deficit and duplicate ids are handled',()=>{assert.equal(cashSummary({...cashFixture,opening:0}).shortfall,60000);assert.throws(()=>normalizeCash({...cashFixture,receivables:[{...cashFixture.receivables[0],id:'e1'}]}))});
