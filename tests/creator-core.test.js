@@ -60,3 +60,12 @@ test('every method has a complete practical guide',()=>assert.ok(methods.every(m
 test('all guide tools resolve to known learning resources',()=>assert.ok(Object.values(methodGuides).every(g=>g.tools.every(id=>resources.some(r=>r.id===id)))));
 test('weekly guide contains seven ordered actions',()=>{for(const m of methods){const p=sevenDayPlan(m.id);assert.equal(p.length,7);assert.ok(p.every((s,i)=>s.startsWith('Día '+(i+1))))}});
 test('practice prompt includes zero-budget and evidence requirements',()=>{assert.match(guidePrompt('catalog'),/RD\$0/);assert.match(guidePrompt('catalog'),/no inventes ganancias/);assert.equal(guidePrompt('unknown'),'')});
+
+import {defaultRoute,normalizeRoute,routePlan} from '../src/adaptive-core.js';
+const routeFixture={done:[],projects:[],records:[],research:[]};
+test('old backups receive default route',()=>assert.deepEqual(normalizeRoute(undefined),defaultRoute()));
+test('route rejects unknown goals and invalid time',()=>{assert.throws(()=>normalizeRoute({goal:'unknown',minutes:30,preferred:''}));assert.throws(()=>normalizeRoute({goal:'income',minutes:0,preferred:''}))});
+test('route excludes completed lessons and adapts to goal',()=>{const p=routePlan({...routeFixture,done:['research']},{goal:'channel',minutes:15,preferred:''});assert.equal(p.primary.lesson,'rights');assert.equal(p.selected,'science')});
+test('income route prioritizes incomplete active project',()=>{const p=routePlan({...routeFixture,projects:[{id:'p',method:'ads',title:'Demo',done:[0]}]},defaultRoute());assert.equal(p.primary.project,'p');assert.equal(p.primary.action,methods.find(m=>m.id==='ads').steps[1]);assert.equal(p.primary.minutes,30)});
+test('completed project without results recommends measuring not claiming a sale',()=>{const p=routePlan({...routeFixture,projects:[{id:'p',method:'ads',title:'Demo',done:[0,1,2,3,4]}]},defaultRoute());assert.ok(p.alternatives.some(t=>t.panel==='Resultados'));assert.equal(p.recordedNet,0)});
+test('route allows preferred method without exceeding practice time',()=>{const p=routePlan(routeFixture,{goal:'skills',minutes:15,preferred:'audio'});assert.equal(p.selected,'audio');assert.ok([p.primary,...p.alternatives].every(t=>t.minutes<=15))});

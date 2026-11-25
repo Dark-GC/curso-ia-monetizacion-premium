@@ -152,3 +152,18 @@ test('expanded method opens practical seven-day guide and project',async({page})
  await dialog.getByRole('button',{name:'Iniciar proyecto',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Catálogos visuales de productos',exact:true})).toBeVisible();
 });
+
+test('adaptive route persists goal and opens the recommended lesson',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Mi ruta',exact:true}).click();
+ await page.getByLabel('Objetivo personal').selectOption('channel');
+ await page.getByLabel('Tiempo disponible').selectOption('15');
+ await expect(page.getByRole('heading',{name:'Practica: Investigar sin inventar',exact:true})).toBeVisible();
+ await page.reload();await page.getByRole('button',{name:'Mi ruta',exact:true}).click();
+ await expect(page.getByLabel('Objetivo personal')).toHaveValue('channel');
+ await expect(page.getByLabel('Tiempo disponible')).toHaveValue('15');
+ await page.getByRole('button',{name:'Ir a la actividad',exact:true}).first().click();
+ await expect(page.getByText('Práctica recomendada',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Registrar práctica realizada'}).first().click();
+ await page.getByRole('button',{name:'Mi ruta',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Practica: Originalidad y monetización',exact:true})).toBeVisible();
+});
