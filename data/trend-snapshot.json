@@ -1,0 +1,98 @@
+{
+  "checkedAt": "2026-11-25T20:07:54.466188+00:00",
+  "notice": "Tendencias generales; no prueban rentabilidad, ni son necesariamente sobre IA.",
+  "feeds": {
+    "DO": {
+      "status": "OK",
+      "source": "https://trends.google.com/trending/rss?geo=DO",
+      "items": [
+        {
+          "title": "posiciones de sabah futbol klubu contra fc barcelona",
+          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+        },
+        {
+          "title": "psg - roma",
+          "published": "Wed, 25 Nov 2026 11:30:00 -0800"
+        },
+        {
+          "title": "atlético madrid - viking",
+          "published": "Wed, 25 Nov 2026 11:30:00 -0800"
+        },
+        {
+          "title": "champions league",
+          "published": "Wed, 25 Nov 2026 11:10:00 -0800"
+        },
+        {
+          "title": "concierto",
+          "published": "Wed, 25 Nov 2026 10:50:00 -0800"
+        },
+        {
+          "title": "liga de campeones de la uefa",
+          "published": "Wed, 25 Nov 2026 10:20:00 -0800"
+        },
+        {
+          "title": "slavia praga - villarreal",
+          "published": "Wed, 25 Nov 2026 09:30:00 -0800"
+        },
+        {
+          "title": "arajet",
+          "published": "Wed, 25 Nov 2026 09:30:00 -0800"
+        },
+        {
+          "title": "inés gómez mont",
+          "published": "Wed, 25 Nov 2026 09:20:00 -0800"
+        },
+        {
+          "title": "sabah vs barcelona",
+          "published": "Wed, 25 Nov 2026 09:10:00 -0800"
+        }
+      ]
+    },
+    "US": {
+      "status": "OK",
+      "source": "https://trends.google.com/trending/rss?geo=US",
+      "items": [
+        {
+          "title": "ole miss basketball",
+          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+        },
+        {
+          "title": "xavier basketball",
+          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+        },
+        {
+          "title": "hollow knight silksong dlc",
+          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+        },
+        {
+          "title": "long beach state basketball",
+          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+        },
+        {
+          "title": "nfl teams",
+          "published": "Wed, 25 Nov 2026 11:50:00 -0800"
+        },
+        {
+          "title": "club brugge",
+          "published": "Wed, 25 Nov 2026 11:40:00 -0800"
+        },
+        {
+          "title": "psg",
+          "published": "Wed, 25 Nov 2026 11:30:00 -0800"
+        },
+        {
+          "title": "mike tomlin",
+          "published": "Wed, 25 Nov 2026 11:30:00 -0800"
+        },
+        {
+          "title": "mike mccarthy press conference",
+          "published": "Wed, 25 Nov 2026 11:30:00 -0800"
+        },
+        {
+          "title": "pacifica pier",
+          "published": "Wed, 25 Nov 2026 11:20:00 -0800"
+        }
+      ]
+    }
+  }
+}

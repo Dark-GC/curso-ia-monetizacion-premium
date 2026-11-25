@@ -118,3 +118,14 @@ test('mentor native provider integration via injected test double',async({page})
  await page.getByRole('button',{name:'Generar con IA local'}).click();
  await expect(page.getByLabel('Respuesta generativa local')).toHaveValue('Resultado simulado para QA');
 });
+
+test('observed trends filter and feed guided research',async({page})=>{
+ await page.goto('/');
+ await page.getByRole('button',{name:'Investigar',exact:true}).click();
+ await page.getByRole('button',{name:'Estados Unidos',exact:true}).click();
+ await page.getByLabel('Categoría de tendencia').selectOption('Videojuegos');
+ await expect(page.getByRole('heading',{name:'hollow knight silksong dlc',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Investigar tendencia',exact:true}).click();
+ await expect(page.getByLabel('Tema de investigación')).toHaveValue('hollow knight silksong dlc');
+ await expect(page.getByLabel('Prompt de investigación')).toHaveValue(/hollow knight silksong dlc/);
+});

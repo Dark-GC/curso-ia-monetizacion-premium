@@ -42,3 +42,9 @@ test('compatibility check does not create a model session',async()=>{let calls=0
 test('mentor uses provider output and destroys session',async()=>{let destroyed=0;const provider={create:async()=>({prompt:async()=> 'Respuesta de prueba',destroy(){destroyed++}})};assert.equal(await generateLocal('Hola',{provider}),'Respuesta de prueba');assert.equal(destroyed,1)});
 test('mentor destroys session when inference fails',async()=>{let destroyed=0;const provider={create:async()=>({prompt:async()=>{throw Error('Falló')},destroy(){destroyed++}})};await assert.rejects(generateLocal('Hola',{provider}));assert.equal(destroyed,1)});
 test('mentor rejects missing task or context',()=>{assert.equal(mentorPrompt('bad','Tema'),'');assert.equal(mentorPrompt('learning',' '),'');assert.match(mentorPrompt('income','Animación'),/No inventes fuentes/)});
+
+import {classifyTrend,trendRows,snapshotAge} from '../src/trend-core.js';
+test('gaming trend classification is based on keywords',()=>assert.equal(classifyTrend('hollow knight silksong dlc').category,'Videojuegos'));
+test('unrecognized trend stays unclassified',()=>assert.equal(classifyTrend('tema desconocido').category,'Sin clasificar'));
+test('trend filters by region, category and query',()=>{const snap={feeds:{US:{status:'OK',items:[{title:'hollow knight',published:'date'},{title:'PSG',published:'date'},{title:'Hollow Knight',published:'date'}]}}};assert.equal(trendRows(snap,'US','Videojuegos','hollow').length,1);assert.deepEqual(trendRows(snap,'DO'),[])});
+test('snapshot marks old data stale and rejects invalid dates',()=>{assert.equal(snapshotAge('2026-01-01T00:00:00Z',Date.parse('2026-01-02T00:00:00Z')).stale,true);assert.equal(snapshotAge('invalid').stale,true)});
