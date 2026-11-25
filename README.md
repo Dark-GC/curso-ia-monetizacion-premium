@@ -1,23 +1,31 @@
-# Curso Premium · Dominar IA & Monetizar Contenido 2026
+# IA Monetiza · Curso Premium 2026
 
-Página web interactiva y premium del curso completo para dominar la IA y monetizar contenido.
-
-## Ver en vivo
-
-**GitHub Pages**: https://dark-gc.github.io/curso-ia-monetizacion-premium/
-
-**Vercel (recomendado)**: Importa este repositorio en [vercel.com](https://vercel.com/new) → selecciona el repo → Deploy. Listo en segundos.
+Aplicación interactiva profesional construida con **React + Vite + Bootstrap + Framer Motion**.
 
 ## Características
 
-- Diseño premium dark mode
-- 4 niveles de ruta (Gratis → Rápido → Escalar → Inversión)
-- 8 módulos interactivos con detalle completo
-- Sistema de progreso guardado en el navegador
-- Generador de prompts profesional (IA Helper)
+- Ruta completa de monetización (Gratis → Ingresos → Escalar → Inversión)
+- 8 módulos interactivos con modales
+- Seguimiento de progreso guardado en el navegador
 - Plan de 30 días con checklist
-- 100% responsive
+- Generador de prompts inteligente (5 tipos)
+- Sección financiera realista
+- Diseño premium dark mode
+- Totalmente responsive
 
-## Cómo editar
+## Desarrollo local
 
-Edita `index.html`, `styles.css` o `app.js` y haz push. Vercel se actualiza automáticamente.
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Deploy
+
+Ya está preparado para Vercel. Solo importa el repositorio y despliega.
