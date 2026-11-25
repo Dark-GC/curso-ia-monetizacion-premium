@@ -20,18 +20,8 @@ jobs:
         run: node --version && npm --version
       - name: Core tests
         run: node --test tests/creator-core.test.js
-      - name: Install (no lifecycle scripts)
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci --ignore-scripts --no-fund --no-audit
-          else
-            npm install --ignore-scripts --no-fund --no-audit
-          fi
-      - name: Lockfile evidence
-        run: |
-          echo LOCKFILE_START
-          base64 -w 76 package-lock.json
-          echo LOCKFILE_END
+      - name: Reproducible install (no lifecycle scripts)
+        run: npm ci --ignore-scripts --no-fund --no-audit
       - name: Build
         run: npm run build
       - name: Dependency audit
