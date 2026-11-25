@@ -35,3 +35,10 @@ test('prompt adds verification and preserves instructions',()=>assert.match(comp
 test('prompt library supports old backups and validates revisions',()=>{assert.deepEqual(normalizePromptLibrary(undefined),[]);assert.throws(()=>normalizePromptLibrary([{id:'1',title:'X',revision:0,fields:{objective:'X'}}]));assert.throws(()=>normalizeFields({role:'x'.repeat(241)}))});
 test('director timeline exact and contiguous',()=>{const p=directorPlan({story:'Historia',bible:'Vestuario',duration:61,scenes:12,ratio:'9:16'});assert.equal(p.shots.length,12);assert.equal(p.shots.at(-1).end,61);assert.ok(p.shots.every((s,i)=>s.start===(i?p.shots[i-1].end:0)));assert.match(p.prompt,/Mantén la historia y el vestuario aprobados/)});
 test('director rejects impossible scenes and bad ratio',()=>{const x={story:'Historia',bible:'',duration:15,scenes:20,ratio:'9:16'};assert.equal(directorPlan(x),null);assert.equal(directorPlan({...x,scenes:3,ratio:'foo'}),null)});
+
+import {localAvailability,generateLocal,mentorPrompt} from '../src/mentor-core.js';
+test('unsupported browser has no local provider',async()=>assert.equal(await localAvailability(null),'unsupported'));
+test('compatibility check does not create a model session',async()=>{let calls=0;const provider={availability:async()=> 'downloadable',create:async()=>{calls++}};assert.equal(await localAvailability(provider),'downloadable');assert.equal(calls,0)});
+test('mentor uses provider output and destroys session',async()=>{let destroyed=0;const provider={create:async()=>({prompt:async()=> 'Respuesta de prueba',destroy(){destroyed++}})};assert.equal(await generateLocal('Hola',{provider}),'Respuesta de prueba');assert.equal(destroyed,1)});
+test('mentor destroys session when inference fails',async()=>{let destroyed=0;const provider={create:async()=>({prompt:async()=>{throw Error('Falló')},destroy(){destroyed++}})};await assert.rejects(generateLocal('Hola',{provider}));assert.equal(destroyed,1)});
+test('mentor rejects missing task or context',()=>{assert.equal(mentorPrompt('bad','Tema'),'');assert.equal(mentorPrompt('learning',' '),'');assert.match(mentorPrompt('income','Animación'),/No inventes fuentes/)});
