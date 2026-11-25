@@ -4,19 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Curso Premium · Dominar IA & Monetizar Contenido 2026</title>
-  <meta name="description" content="Curso interactivo y premium para dominar la inteligencia artificial y monetizar contenido. Rutas gratis, media y gran inversión con tiempos reales." />
+  <meta name="description" content="Curso interactivo y premium para dominar la inteligencia artificial y monetizar contenido." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    /* Fallback critical styles in case CSS fails to load */
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0a0a0f; color: #f0f0f5; }
+  </style>
 </head>
 <body>
   <div class="bg-grid"></div>
   <div class="glow glow-1"></div>
   <div class="glow glow-2"></div>
+
   <nav class="navbar" id="navbar">
     <div class="nav-container">
-      <div class="logo"><span class="logo-icon">◈</span><span>IA Monetiza</span></div>
+      <div class="logo">
+        <span class="logo-icon">◈</span>
+        <span>IA Monetiza</span>
+      </div>
       <div class="nav-links">
         <a href="#inicio" class="nav-link active">Inicio</a>
         <a href="#ruta" class="nav-link">Ruta</a>
@@ -28,6 +36,7 @@
       <button class="theme-toggle" id="themeToggle" title="Cambiar tema">◐</button>
     </div>
   </nav>
+
   <header class="hero" id="inicio">
     <div class="hero-content">
       <div class="badge">Curso Interactivo Premium · 2026</div>
@@ -38,38 +47,104 @@
         <a href="#progreso" class="btn btn-secondary">Ver mi progreso</a>
       </div>
       <div class="hero-stats">
-        <div class="stat"><span class="stat-num" data-target="3">0</span><span class="stat-label">Niveles</span></div>
-        <div class="stat"><span class="stat-num" data-target="8">0</span><span class="stat-label">Módulos</span></div>
-        <div class="stat"><span class="stat-num" data-target="30">0</span><span class="stat-label">Días plan</span></div>
+        <div class="stat">
+          <span class="stat-num" data-target="3">0</span>
+          <span class="stat-label">Niveles</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" data-target="8">0</span>
+          <span class="stat-label">Módulos</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" data-target="30">0</span>
+          <span class="stat-label">Días plan</span>
+        </div>
       </div>
     </div>
   </header>
+
   <section class="section" id="ruta">
     <div class="container">
-      <div class="section-header"><h2>Tu Ruta de Monetización</h2><p>Elige según tu tiempo y capital. Todos empiezan gratis.</p></div>
+      <div class="section-header">
+        <h2>Tu Ruta de Monetización</h2>
+        <p>Elige según tu tiempo y capital. Todos empiezan gratis.</p>
+      </div>
       <div class="path-cards">
-        <div class="path-card free"><div class="path-level">Nivel 0</div><h3>Fundamentos</h3><div class="path-time">2-4 semanas</div><ul><li>Herramientas gratuitas</li><li>Prompts de calidad</li><li>Primer portafolio</li></ul><div class="path-dedication">1-2 h/día</div><button class="btn-path" onclick="goToModule(0)">Empezar gratis</button></div>
-        <div class="path-card mid"><div class="path-level">Nivel 1</div><h3>Ingresos Rápidos</h3><div class="path-time">2-8 semanas</div><ul><li>Freelance con IA</li><li>Productos digitales</li><li>Contenido faceless</li></ul><div class="path-dedication">10-20 h/semana</div><button class="btn-path" onclick="goToModule(1)">Ver métodos</button></div>
-        <div class="path-card pro"><div class="path-level">Nivel 2</div><h3>Escalar</h3><div class="path-time">2-6 meses</div><ul><li>Retainers & agencia</li><li>Contenido + SEO</li><li>Herramientas pro</li></ul><div class="path-dedication">15-25 h/semana</div><button class="btn-path" onclick="goToModule(2)">Escalar</button></div>
-        <div class="path-card elite"><div class="path-level">Nivel 3</div><h3>Inversión Segura</h3><div class="path-time">Largo plazo</div><ul><li>Acciones & ETFs</li><li>Data centers</li><li>Negocio propio</li></ul><div class="path-dedication">Capital + paciencia</div><button class="btn-path" onclick="goToModule(3)">Ver opciones</button></div>
+        <div class="path-card free">
+          <div class="path-level">Nivel 0</div>
+          <h3>Fundamentos</h3>
+          <div class="path-time">2-4 semanas</div>
+          <ul>
+            <li>Herramientas gratuitas</li>
+            <li>Prompts de calidad</li>
+            <li>Primer portafolio</li>
+          </ul>
+          <div class="path-dedication">1-2 h/día</div>
+          <button class="btn-path" onclick="goToModule(0)">Empezar gratis</button>
+        </div>
+        <div class="path-card mid">
+          <div class="path-level">Nivel 1</div>
+          <h3>Ingresos Rápidos</h3>
+          <div class="path-time">2-8 semanas</div>
+          <ul>
+            <li>Freelance con IA</li>
+            <li>Productos digitales</li>
+            <li>Contenido faceless</li>
+          </ul>
+          <div class="path-dedication">10-20 h/semana</div>
+          <button class="btn-path" onclick="goToModule(1)">Ver métodos</button>
+        </div>
+        <div class="path-card pro">
+          <div class="path-level">Nivel 2</div>
+          <h3>Escalar</h3>
+          <div class="path-time">2-6 meses</div>
+          <ul>
+            <li>Retainers & agencia</li>
+            <li>Contenido + SEO</li>
+            <li>Herramientas pro</li>
+          </ul>
+          <div class="path-dedication">15-25 h/semana</div>
+          <button class="btn-path" onclick="goToModule(2)">Escalar</button>
+        </div>
+        <div class="path-card elite">
+          <div class="path-level">Nivel 3</div>
+          <h3>Inversión Segura</h3>
+          <div class="path-time">Largo plazo</div>
+          <ul>
+            <li>Acciones & ETFs</li>
+            <li>Data centers</li>
+            <li>Negocio propio</li>
+          </ul>
+          <div class="path-dedication">Capital + paciencia</div>
+          <button class="btn-path" onclick="goToModule(3)">Ver opciones</button>
+        </div>
       </div>
     </div>
   </section>
+
   <section class="section dark" id="modulos">
     <div class="container">
-      <div class="section-header"><h2>Módulos del Curso</h2><p>Haz clic en cada módulo. Marca como completado para guardar tu progreso.</p></div>
+      <div class="section-header">
+        <h2>Módulos del Curso</h2>
+        <p>Haz clic en cada módulo. Marca como completado para guardar tu progreso.</p>
+      </div>
       <div class="modules-grid" id="modulesGrid"></div>
     </div>
   </section>
+
   <div class="module-detail" id="moduleDetail">
     <div class="module-detail-content">
       <button class="close-detail" id="closeDetail">×</button>
       <div id="detailBody"></div>
     </div>
   </div>
+
   <section class="section" id="herramientas">
     <div class="container">
-      <div class="section-header"><h2>Stack de Herramientas 2026</h2><p>Gratis primero. Paga solo cuando generes ingresos.</p></div>
+      <div class="section-header">
+        <h2>Stack de Herramientas 2026</h2>
+        <p>Gratis primero. Paga solo cuando generes ingresos.</p>
+      </div>
       <div class="tools-grid">
         <div class="tool-card"><div class="tool-icon">✍️</div><h4>Texto & Investigación</h4><p>ChatGPT · Claude · Gemini</p><span class="tool-badge free">Free + Pro</span></div>
         <div class="tool-card"><div class="tool-icon">🎨</div><h4>Imágenes</h4><p>Canva AI · Leonardo · Ideogram · Firefly</p><span class="tool-badge free">Free + Pro</span></div>
@@ -80,19 +155,30 @@
       </div>
     </div>
   </section>
+
   <section class="section dark" id="progreso">
     <div class="container">
-      <div class="section-header"><h2>Tu Progreso</h2><p>Se guarda automáticamente en este navegador.</p></div>
+      <div class="section-header">
+        <h2>Tu Progreso</h2>
+        <p>Se guarda automáticamente en este navegador.</p>
+      </div>
       <div class="progress-panel">
         <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
-        <div class="progress-info"><span id="progressText">0% completado</span><button class="btn btn-secondary" id="resetProgress">Reiniciar progreso</button></div>
+        <div class="progress-info">
+          <span id="progressText">0% completado</span>
+          <button class="btn btn-secondary" id="resetProgress">Reiniciar progreso</button>
+        </div>
         <div class="checklist" id="checklist"></div>
       </div>
     </div>
   </section>
+
   <section class="section" id="ia-helper">
     <div class="container">
-      <div class="section-header"><h2>IA Helper · Generador de Prompts</h2><p>Crea prompts listos para usar según el tipo de contenido que quieras monetizar.</p></div>
+      <div class="section-header">
+        <h2>IA Helper · Generador de Prompts</h2>
+        <p>Crea prompts listos para usar según el tipo de contenido que quieras monetizar.</p>
+      </div>
       <div class="helper-box">
         <div class="helper-controls">
           <select id="promptType">
@@ -105,17 +191,24 @@
           <input type="text" id="nicheInput" placeholder="Nicho (ej: clínicas dentales, fitness, finanzas...)" />
           <button class="btn btn-primary" id="generatePrompt">Generar prompt →</button>
         </div>
-        <div class="prompt-output" id="promptOutput"><p class="placeholder">Selecciona tipo + nicho y genera tu prompt profesional.</p></div>
+        <div class="prompt-output" id="promptOutput">
+          <p class="placeholder">Selecciona tipo + nicho y genera tu prompt profesional.</p>
+        </div>
         <button class="btn btn-secondary copy-btn" id="copyPrompt" style="display:none;">Copiar prompt</button>
       </div>
     </div>
   </section>
+
   <section class="section dark" id="plan30">
     <div class="container">
-      <div class="section-header"><h2>Plan de 30 Días</h2><p>Acción diaria. Marca lo que completes.</p></div>
+      <div class="section-header">
+        <h2>Plan de 30 Días</h2>
+        <p>Acción diaria. Marca lo que completes.</p>
+      </div>
       <div class="plan-timeline" id="planTimeline"></div>
     </div>
   </section>
+
   <footer class="footer">
     <div class="container">
       <p>Curso creado para uso personal · Actualizado Nov 2026</p>
@@ -123,6 +216,7 @@
       <a href="https://github.com/Dark-GC/curso-ia-monetizacion-premium" target="_blank" class="github-link">Ver en GitHub</a>
     </div>
   </footer>
-  <script src="app.js"></script>
+
+  <script src="./app.js"></script>
 </body>
 </html>
