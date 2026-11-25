@@ -1,7 +1,7 @@
 name: Creator QA
 on:
-  push:
-    branches: [codex/im001-creator-academy]
+  pull_request:
+    branches: [panda]
   workflow_dispatch:
 permissions:
   contents: read
