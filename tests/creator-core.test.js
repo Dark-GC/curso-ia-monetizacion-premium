@@ -69,3 +69,8 @@ test('route excludes completed lessons and adapts to goal',()=>{const p=routePla
 test('income route prioritizes incomplete active project',()=>{const p=routePlan({...routeFixture,projects:[{id:'p',method:'ads',title:'Demo',done:[0]}]},defaultRoute());assert.equal(p.primary.project,'p');assert.equal(p.primary.action,methods.find(m=>m.id==='ads').steps[1]);assert.equal(p.primary.minutes,30)});
 test('completed project without results recommends measuring not claiming a sale',()=>{const p=routePlan({...routeFixture,projects:[{id:'p',method:'ads',title:'Demo',done:[0,1,2,3,4]}]},defaultRoute());assert.ok(p.alternatives.some(t=>t.panel==='Resultados'));assert.equal(p.recordedNet,0)});
 test('route allows preferred method without exceeding practice time',()=>{const p=routePlan(routeFixture,{goal:'skills',minutes:15,preferred:'audio'});assert.equal(p.selected,'audio');assert.ok([p.primary,...p.alternatives].every(t=>t.minutes<=15))});
+
+import {planOffer} from '../src/finance-core.js';
+test('offer separates cash, labor and hypothetical sales target',()=>assert.deepEqual(planOffer({price:1000,cost:200,hours:2,hourly:300,target:2400}),{cash:800,labor:600,net:200,minimum:800,effective:400,needed:3,neededHours:6}));
+test('offer never predicts sales for nonpositive cash',()=>assert.equal(planOffer({price:100,cost:200,hours:1,hourly:0,target:500}).needed,null));
+test('offer rejects invalid hours and negative amounts',()=>{assert.equal(planOffer({price:100,cost:0,hours:0,hourly:0,target:100}),null);assert.equal(planOffer({price:-1,cost:0,hours:1,hourly:0,target:100}),null)});

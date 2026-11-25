@@ -14,16 +14,16 @@ test('method to project and persistence',async({page})=>{
  await expect(page.getByRole('dialog')).toBeVisible();
  await page.getByRole('button',{name:'Iniciar proyecto'}).click();
  await expect(page.getByRole('heading',{name:'Mis proyectos'})).toBeVisible();
- await page.getByRole('button',{name:/Elige un comercio/}).click();
+ await page.getByRole('button',{name:'Ver proyecto',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:/Elige un comercio/}).click();
  await page.reload();await navigate(page,'Proyectos');
- await expect(page.getByRole('button',{name:/✓ Elige un comercio/})).toBeVisible();
- expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ await page.getByRole('button',{name:'Ver proyecto',exact:true}).click();await expect(page.getByRole('dialog').getByRole('button',{name:/✓ Elige un comercio/})).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
  expect(errors).toEqual([]);
 });
 test('learning, prompts and financial record',async({page})=>{
  await page.goto('/');await navigate(page,'Academia');
- await page.getByRole('button',{name:'Registrar práctica realizada'}).first().click();
- await expect(page.getByRole('button',{name:'✓ Práctica registrada'})).toBeVisible();
+ await page.getByRole('button',{name:'Ver lección',exact:true}).first().click();await page.getByRole('dialog').getByRole('button',{name:'Registrar práctica realizada'}).click();
+ await expect(page.getByRole('button',{name:'✓ Práctica registrada'})).toBeVisible();await page.getByRole('button',{name:'Cerrar lección'}).click();
  await navigate(page,'Crear');
  await page.getByPlaceholder('Ej. Curiosidades científicas').fill('Ciencia');
  await page.getByPlaceholder('Ej. Adultos interesados en ciencia').fill('Adultos');
@@ -181,15 +181,15 @@ test('premium shell fits compact mobile, tablet and desktop and captures evidenc
  for(const [width,height] of [[320,740],[768,900],[1440,900]]){
   await page.setViewportSize({width,height});
   if(width<992){await expect(page.getByRole('button',{name:'Menú de navegación'})).toBeVisible();}else{await expect(page.getByRole('navigation',{name:'Navegación'})).toBeVisible();}
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
   await page.screenshot({path:testInfo.outputPath('home-'+width+'.png'),animations:'disabled',fullPage:true});
  }
  await navigate(page,'Estudio IA');
  await expect(page.getByRole('heading',{name:'Prompt Master & AI Director'})).toBeVisible();
- expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
  await page.screenshot({path:testInfo.outputPath('studio-desktop.png'),animations:'disabled',fullPage:true});
  await page.setViewportSize({width:360,height:800});
- expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
  await page.screenshot({path:testInfo.outputPath('studio-mobile.png'),animations:'disabled',fullPage:true});
 });
 
@@ -199,9 +199,25 @@ test('mobile navigation opens every group, closes on selection and Escape',async
  const nav=page.getByRole('navigation',{name:'Navegación'});
  await expect(menu).toHaveAttribute('aria-expanded','false');await expect(nav).toBeHidden();
  await menu.click();await expect(nav.getByRole('button')).toHaveCount(10);
- expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
  await page.screenshot({path:testInfo.outputPath('mobile-menu-320.png'),animations:'disabled',fullPage:false});
  await page.keyboard.press('Escape');await expect(nav).toBeHidden();await expect(menu).toBeFocused();
  await navigate(page,'Estudio IA');await expect(nav).toBeHidden();
  await expect(page.getByRole('heading',{name:'Prompt Master & AI Director'})).toBeVisible();
+});
+
+test('vertical cards keep details in modals and finance simulations stay separate',async({page},testInfo)=>{
+ await page.goto('/');await navigate(page,'Explorar');
+ await expect(page.locator('.entity-card')).toHaveCount(12);
+ await expect(page.getByText('Plan de 7 días',{exact:true})).toHaveCount(0);
+ await page.screenshot({path:testInfo.outputPath('catalog.png'),animations:'disabled',fullPage:true});
+ await page.getByRole('button',{name:'Estudiar método'}).first().click();
+ await expect(page.getByRole('dialog').getByRole('heading',{name:'Plan de 7 días'})).toBeVisible();
+ await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toBeHidden();
+ await navigate(page,'Resultados');await page.getByRole('button',{name:'Planificar una oferta'}).click();
+ for(const [label,value] of [['Precio de venta DOP','1000'],['Costo directo DOP','200'],['Horas estimadas','2'],['Valor de tu hora DOP','300'],['Meta de efectivo neto DOP','2400']])await page.getByLabel(label,{exact:true}).fill(value);
+ await expect(page.getByText('La oferta cubre los costos',{exact:false})).toBeVisible();
+ await expect(page.getByText('3',{exact:true})).toBeVisible();
+ await page.screenshot({path:testInfo.outputPath('finance-planner.png'),animations:'disabled',fullPage:true});
+ await page.getByRole('button',{name:'Resultados reales',exact:true}).click();await expect(page.getByText('Visualizaciones registradas: 0')).toBeVisible();
 });
