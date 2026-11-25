@@ -1,0 +1,24 @@
+name: Editorial source check
+on:
+  pull_request:
+    branches: [panda]
+    paths:
+      - 'scripts/check-sources.mjs'
+      - 'src/creator-core.js'
+      - '.github/workflows/editorial-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: editorial-check-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Check known public sources
+        run: node scripts/check-sources.mjs /tmp/monetiza-source-report.json
