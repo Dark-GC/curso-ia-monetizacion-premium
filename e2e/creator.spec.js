@@ -168,8 +168,9 @@ test('adaptive route persists goal and opens the recommended lesson',async({page
  await expect(page.getByLabel('Objetivo personal')).toHaveValue('channel');
  await expect(page.getByLabel('Tiempo disponible')).toHaveValue('15');
  await page.getByRole('button',{name:'Ir a la actividad',exact:true}).first().click();
- await expect(page.getByText('Práctica recomendada',{exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Registrar práctica realizada'}).first().click();
+ await expect(page.getByRole('dialog').getByText('Investigar sin inventar',{exact:true})).toBeVisible();
+ await page.getByRole('dialog').getByRole('button',{name:'Registrar práctica realizada'}).click();
+ await page.getByRole('button',{name:'Cerrar lección'}).click();
  await navigate(page,'Mi ruta');
  await expect(page.getByRole('heading',{name:'Practica: Originalidad y monetización',exact:true})).toBeVisible();
 });
