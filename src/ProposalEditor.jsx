@@ -3,7 +3,8 @@ import {Button,Form,Row,Col} from 'react-bootstrap';
 import {proposalFields,experimentFields,decisions,normalizeProposal,normalizeExperiment,proposalText} from './proposal-core.js';
 export default function ProposalEditor({item,onSave,onBack,notify,disabled}){
  const [p,setP]=useState(()=>normalizeProposal(item.proposal)),[e,setE]=useState(()=>normalizeExperiment(item.experiment)),[tab,setTab]=useState('proposal'),[error,setError]=useState('');
- const locked=item.stage==='agreed'||item.stage==='closed',text=proposalText(item,p),saved=JSON.stringify(p)===JSON.stringify(normalizeProposal(item.proposal));
+ const locked=item.stage==='agreed'||item.stage==='closed',saved=JSON.stringify(p)===JSON.stringify(normalizeProposal(item.proposal));
+ let text='';try{text=proposalText(item,p)}catch{/* invalid draft remains editable without crashing */}
  const save=()=>{if(disabled)return;try{onSave({...item,proposal:locked?normalizeProposal(item.proposal):normalizeProposal(p),experiment:normalizeExperiment(e)});notify('Ficha comercial guardada.');onBack()}catch{setError('Revisa los campos. Una decisión requiere hipótesis, criterio, observación y próxima acción.')}};
  const copy=async()=>{try{await navigator.clipboard.writeText(text);notify('Propuesta copiada.')}catch{notify('Selecciona el texto para copiarlo manualmente.')}};
  const download=()=>{const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='propuesta-comercial.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
