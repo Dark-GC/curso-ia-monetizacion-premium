@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {methods,lessons,sources,buildPrompt,totals,validRecord} from '../src/creator-core.js';
+test('six unique methods',()=>{assert.equal(methods.length,6);assert.equal(new Set(methods.map(m=>m.id)).size,6)});
+test('six unique lessons',()=>{assert.equal(lessons.length,6);assert.equal(new Set(lessons.map(l=>l.id)).size,6)});
+test('references resolve',()=>assert.ok(methods.every(m=>m.refs.every(k=>sources[k]))));
+test('blank topic rejected',()=>assert.equal(buildPrompt(methods[0],' ','x','9:16'),''));
+test('prompt includes verification',()=>assert.ok(buildPrompt(methods[0],'tema','aud','9:16').includes('No inventes fuentes')));
+test('totals',()=>assert.deepEqual(totals([{income:200,cost:30,views:40}]),{income:200,cost:30,views:40}));
+test('negative record rejected',()=>assert.equal(validRecord({id:'a',title:'x',income:-1,cost:0,views:0}),false));
+test('valid record accepted',()=>assert.equal(validRecord({id:'a',title:'x',income:1,cost:0,views:0}),true));
