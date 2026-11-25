@@ -1,0 +1,26 @@
+name: Public trend discovery
+on:
+  pull_request:
+    branches: [panda]
+    paths:
+      - 'scripts/discover-trends.py'
+      - 'tests/test_discover_trends.py'
+      - '.github/workflows/trend-discovery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: trend-discovery-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  discover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Parser tests
+        run: python3 tests/test_discover_trends.py
+      - name: Fetch public trend feeds
+        run: python3 scripts/discover-trends.py /tmp/trend-report.json
