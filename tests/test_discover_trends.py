@@ -11,6 +11,9 @@ class TrendTests(unittest.TestCase):
     def test_reject_dtd(self):
         with self.assertRaises(ValueError):
             m.parse_feed(b'<!DOCTYPE rss [<!ENTITY x "x">]><rss/>')
+    def test_reject_utf16_xml(self):
+        with self.assertRaises((ValueError, UnicodeError)):
+            m.parse_feed('<!DOCTYPE rss [<!ENTITY x "x">]><rss/>'.encode('utf-16'))
     def test_limit_items(self):
         self.assertEqual(len(m.parse_feed(b'<rss><channel>'+b'<item><title>X</title></item>'*40+b'</channel></rss>')),30)
     def test_reject_non_rss(self):

@@ -129,3 +129,14 @@ test('observed trends filter and feed guided research',async({page})=>{
  await expect(page.getByLabel('Tema de investigación')).toHaveValue('hollow knight silksong dlc');
  await expect(page.getByLabel('Prompt de investigación')).toHaveValue(/hollow knight silksong dlc/);
 });
+
+test('provider report import persists independently and labels provenance',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Investigar',exact:true}).click();
+ await page.getByRole('button',{name:'Hugging Face',exact:true}).click();
+ const report={checkedAt:'2026-01-01T00:00:00Z',feeds:{HF:{status:'OK',source:'https://huggingface.co/blog/feed.xml',items:[{title:'AI video model QA fixture',published:'Fixture'}]}}};
+ await page.getByLabel('Importar informe de tendencias').setInputFiles({name:'trend-report.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});
+ await expect(page.getByRole('heading',{name:'AI video model QA fixture',exact:true})).toBeVisible();
+ await page.reload();await page.getByRole('button',{name:'Investigar',exact:true}).click();await page.getByRole('button',{name:'Hugging Face',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'AI video model QA fixture',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Volver a captura inicial'}).click();await expect(page.getByRole('heading',{name:'AI video model QA fixture',exact:true})).toHaveCount(0);
+});

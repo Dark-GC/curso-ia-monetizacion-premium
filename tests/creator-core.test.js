@@ -48,3 +48,9 @@ test('gaming trend classification is based on keywords',()=>assert.equal(classif
 test('unrecognized trend stays unclassified',()=>assert.equal(classifyTrend('tema desconocido').category,'Sin clasificar'));
 test('trend filters by region, category and query',()=>{const snap={feeds:{US:{status:'OK',items:[{title:'hollow knight',published:'date'},{title:'PSG',published:'date'},{title:'Hollow Knight',published:'date'}]}}};assert.equal(trendRows(snap,'US','Videojuegos','hollow').length,1);assert.deepEqual(trendRows(snap,'DO'),[])});
 test('snapshot marks old data stale and rejects invalid dates',()=>{assert.equal(snapshotAge('2026-01-01T00:00:00Z',Date.parse('2026-01-02T00:00:00Z')).stale,true);assert.equal(snapshotAge('invalid').stale,true)});
+
+import {normalizeTrendReport,feedCatalog} from '../src/trend-core.js';
+const providerReport={checkedAt:'2026-01-01T00:00:00Z',feeds:{HF:{status:'OK',source:feedCatalog.HF.url,items:[{title:'Image model',published:'Example'}]}}};
+test('provider report accepts known source and bounded plain text',()=>assert.equal(normalizeTrendReport(providerReport).feeds.HF.items[0].title,'Image model'));
+test('provider report rejects spoofed known source',()=>assert.throws(()=>normalizeTrendReport({...providerReport,feeds:{HF:{...providerReport.feeds.HF,source:'https://example.com'}}})));
+test('provider report rejects future date and oversized items',()=>{assert.throws(()=>normalizeTrendReport({...providerReport,checkedAt:'2999-01-01'}));assert.throws(()=>normalizeTrendReport({...providerReport,feeds:{HF:{...providerReport.feeds.HF,items:Array(31).fill(providerReport.feeds.HF.items[0])}}}))});

@@ -1,5 +1,8 @@
 // Original editorial workflows; external resources are linked, not vendored.
 export const resources=[
+ {id:'krita',name:'Krita — diseño e ilustración',url:'https://krita.org/en/about/license/',kind:'Diseño',cost:'GPL; uso comercial permitido; utiliza imágenes propias o autorizadas',checked:'2026-11-25'},
+ {id:'kdenlive',name:'Kdenlive — edición de video',url:'https://kdenlive.org/',kind:'Edición',cost:'Software libre; comprueba RAM y utiliza proxies si tu equipo lo permite',checked:'2026-11-25'},
+ {id:'audacity',name:'Audacity — grabación y edición de voz',url:'https://manual.audacityteam.org/man/faq_about_audacity.html',kind:'Audio',cost:'Software libre para escritorio; no requiere suscripción para editar localmente',checked:'2026-11-25'},
  {id:'ms-basic',name:'Microsoft: fundamentos de prompts',url:'https://github.com/microsoft/generative-ai-for-beginners/blob/main/04-prompt-engineering-fundamentals/README.md',kind:'Aprendizaje',cost:'Material MIT; servicios de los ejercicios pueden requerir cuenta o pago',checked:'2026-11-25'},
  {id:'ms-advanced',name:'Microsoft: prompts avanzados',url:'https://github.com/microsoft/generative-ai-for-beginners/blob/main/05-advanced-prompts/README.md',kind:'Aprendizaje',cost:'Material MIT; adapta ejercicios a herramientas disponibles',checked:'2026-11-25'},
  {id:'shotcut',name:'Shotcut',url:'https://shotcut.org/',kind:'Edición',cost:'Software libre; edición local; comprueba requisitos de hardware',checked:'2026-11-25'},

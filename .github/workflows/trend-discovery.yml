@@ -24,3 +24,11 @@ jobs:
         run: python3 tests/test_discover_trends.py
       - name: Fetch public trend feeds
         run: python3 scripts/discover-trends.py /tmp/trend-report.json
+      - name: Publish report artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: trend-report
+          path: /tmp/trend-report.json
+          retention-days: 7
+          if-no-files-found: warn
