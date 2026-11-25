@@ -5,7 +5,7 @@ export const sources = {
  metaUpdate: {name:'Meta: programas de monetización y actualización de noviembre 2026',url:'https://about.fb.com/news/2026/03/creator-fast-track-grow-your-audience-earn-money-on-facebook/'},
  youtube: {name:'YouTube: políticas de monetización',url:'https://support.google.com/youtube/answer/1311392'},
  meta: {name:'Meta: contenido original',url:'https://about.fb.com/news/2026/03/rewarding-original-creators-on-facebook/'},
- tiktok: {name:'TikTok: Creator Rewards',url:'https://support.tiktok.com/en/business-and-creator/creator-rewards-program/how-is-the-creator-rewards-program-different-from-the-tiktok-creator-fund'},
+ tiktok: {name:'TikTok: Creator Rewards',url:'https://support.tiktok.com/es/business-and-creator/creator-rewards-program/how-is-the-creator-rewards-program-different-from-the-tiktok-creator-fund?invalid_lang=el'},
  microsoft: {name:'Microsoft: Generative AI for Beginners (MIT)',url:'https://github.com/microsoft/generative-ai-for-beginners'},
  license: {name:'Licencia del curso Microsoft',url:'https://github.com/microsoft/generative-ai-for-beginners/blob/main/LICENSE'}
 };
