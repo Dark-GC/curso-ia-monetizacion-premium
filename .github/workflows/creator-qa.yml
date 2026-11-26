@@ -24,6 +24,8 @@ jobs:
         run: npm ci --ignore-scripts --no-fund --no-audit
       - name: Build
         run: npm run build
+      - name: Static distribution budget and manifest
+        run: node scripts/release-check.mjs
       - name: Dependency audit
         run: npm audit --audit-level=high
       - name: Install Chromium
@@ -44,5 +46,12 @@ jobs:
         with:
           name: monetiza-preview-dist
           path: dist/
+          retention-days: 7
+          if-no-files-found: error
+      - name: Release manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: monetiza-release-manifest
+          path: release-manifest.json
           retention-days: 7
           if-no-files-found: error
