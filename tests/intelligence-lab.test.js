@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {emptyIntelligenceLab,applyLab,reviewLabCard,validateLab,exportLab} from '../src/intelligence/lab-state.js';
+const now=Date.parse('2026-11-25T20:00:00.000Z');
+const card={id:'practice-1',method:'ads',problem:'Necesidad ficticia',buyer:'Comprador ficticio',deliverable:'Muestra de práctica',minutes:30,costCentavos:0,skill:'yes',rights:'yes',eligibility:'yes',evidenceIds:[],origin:'synthetic'};
+const entry={card,resourceIds:['krita']},verification={id:'krita',checkedAt:'2026-11-25',origin:'synthetic',checks:{cost:'yes',card:'yes',quota:'yes',region:'yes',rights:'yes',hardware:'yes'}};
+const save=(s,c)=>applyLab(s,c,now).state;
+const start=()=>save(emptyIntelligenceLab(),{type:'card',entry});
+const ready=()=>save(start(),{type:'check',verification});
+const draft={type:'draft',id:card.id,minutes:60,confirmed:true};
+test('lab rejects draft without resource verification or confirmation',()=>{assert.equal(reviewLabCard(start(),card.id,60,now).ready,false);assert.throws(()=>save(start(),draft));assert.throws(()=>save(ready(),{...draft,confirmed:false}));assert.throws(()=>save(ready(),{...draft,minutes:10}))});
+test('lab atomically plans synthetic draft, preserves money, records linked identity',()=>{const a=ready(),b=save(a,draft);assert.equal(b.revision,3);assert.equal(b.links.length,1);assert.equal(b.workspace.projects.length,1);assert.equal(b.workspace.opportunities[0].stage,'idea');assert.deepEqual(b.workspace.cash,a.workspace.cash);assert.equal(a.links.length,0);assert.equal(b.links[0].projectId,b.workspace.projects[0].id);assert.equal(b.links[0].opportunityId,b.workspace.opportunities[0].id)});
+test('repeat draft is idempotent and malformed links fail',()=>{const a=save(ready(),draft),r=applyLab(a,draft,now);assert.equal(r.status,'EXISTS');assert.equal(r.state.revision,a.revision);assert.throws(()=>validateLab({...a,links:[]},now));assert.throws(()=>validateLab({...a,links:[{...a.links[0],projectId:'bad'}]},now))});
+test('lab rejects duplicate cards, non-synthetic claims and unselected resources',()=>{assert.throws(()=>save(start(),{type:'card',entry}));assert.throws(()=>save(emptyIntelligenceLab(),{type:'card',entry:{...entry,card:{...card,origin:'user-reported'}}}));assert.throws(()=>save(emptyIntelligenceLab(),{type:'card',entry:{...entry,resourceIds:[]}}));assert.throws(()=>save(start(),{type:'check',verification:{...verification,origin:'user-reported'}}))});
+test('stale or denied checks block draft',()=>{const a=save(start(),{type:'check',verification:{...verification,checkedAt:'2026-10-25'}});assert.throws(()=>save(a,draft));const b=save(start(),{type:'check',verification:{...verification,checks:{...verification.checks,hardware:'no'}}});assert.throws(()=>save(b,draft))});
+test('report labels synthetic scope and preserves links',()=>{const a=save(ready(),draft),r=JSON.parse(exportLab(a,now));assert.equal(r.format,'monetiza-intelligence-lab-v1');assert.match(r.scope,/synthetic-only/);assert.deepEqual(r.data.links,a.links)});
