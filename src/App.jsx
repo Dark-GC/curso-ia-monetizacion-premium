@@ -1,442 +1,99 @@
-import React, { useState, useEffect } from 'react'
-import { Container, Navbar, Nav, Button, Card, Row, Col, Modal, ProgressBar, Form, Badge, Tabs, Tab } from 'react-bootstrap'
-import { motion, AnimatePresence } from 'framer-motion'
-import { levels, modules, plan30, promptTemplates } from './data'
-import { FiCheckCircle, FiCircle, FiZap, FiTrendingUp, FiBookOpen, FiTool, FiDollarSign, FiTarget, FiCopy, FiRefreshCw } from 'react-icons/fi'
-
-const STORAGE_KEY = 'ia-monetiza-progress-v3'
-
-export default function App() {
-  const [activeSection, setActiveSection] = useState('inicio')
-  const [completed, setCompleted] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { modules: [], plan: [] }
-    } catch {
-      return { modules: [], plan: [] }
-    }
-  })
-  const [selectedModule, setSelectedModule] = useState(null)
-  const [showModuleModal, setShowModuleModal] = useState(false)
-  const [promptType, setPromptType] = useState('freelance')
-  const [niche, setNiche] = useState('')
-  const [generatedPrompt, setGeneratedPrompt] = useState('')
-  const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(completed))
-  }, [completed])
-
-  const totalModules = modules.length
-  const completedCount = completed.modules.length
-  const progressPercent = Math.round((completedCount / totalModules) * 100)
-
-  const toggleModule = (id) => {
-    setCompleted(prev => {
-      const exists = prev.modules.includes(id)
-      return {
-        ...prev,
-        modules: exists ? prev.modules.filter(m => m !== id) : [...prev.modules, id]
-      }
-    })
-  }
-
-  const togglePlanDay = (day) => {
-    setCompleted(prev => {
-      const exists = prev.plan.includes(day)
-      return {
-        ...prev,
-        plan: exists ? prev.plan.filter(d => d !== day) : [...prev.plan, day]
-      }
-    })
-  }
-
-  const openModule = (mod) => {
-    setSelectedModule(mod)
-    setShowModuleModal(true)
-  }
-
-  const generatePrompt = () => {
-    if (!niche.trim()) {
-      setGeneratedPrompt('Escribe un nicho primero (ej: clínicas dentales, fitness, finanzas personales...)')
-      return
-    }
-    const template = promptTemplates[promptType]
-    setGeneratedPrompt(template(niche.trim()))
-  }
-
-  const copyPrompt = () => {
-    navigator.clipboard.writeText(generatedPrompt)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const resetProgress = () => {
-    if (window.confirm('¿Seguro que quieres reiniciar todo tu progreso?')) {
-      setCompleted({ modules: [], plan: [] })
-    }
-  }
-
-  const scrollTo = (id) => {
-    setActiveSection(id)
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  return (
-    <div className="min-vh-100">
-      {/* Navbar */}
-      <Navbar expand="lg" className="glass sticky-top py-3" variant="dark">
-        <Container>
-          <Navbar.Brand className="brand d-flex align-items-center gap-2 fw-bold">
-            <span style={{ color: '#8b5cf6' }}>◈</span> IA Monetiza
-          </Navbar.Brand>
-          <Navbar.Toggle />
-          <Navbar.Collapse>
-            <Nav className="ms-auto gap-1">
-              {['inicio', 'ruta', 'modulos', 'herramientas', 'progreso', 'ia-helper', 'finanzas'].map(s => (
-                <Nav.Link
-                  key={s}
-                  onClick={() => scrollTo(s)}
-                  className={activeSection === s ? 'text-white fw-semibold' : 'text-secondary'}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {s === 'inicio' && 'Inicio'}
-                  {s === 'ruta' && 'Ruta'}
-                  {s === 'modulos' && 'Módulos'}
-                  {s === 'herramientas' && 'Herramientas'}
-                  {s === 'progreso' && 'Progreso'}
-                  {s === 'ia-helper' && 'IA Helper'}
-                  {s === 'finanzas' && 'Finanzas'}
-                </Nav.Link>
-              ))}
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-
-      {/* Hero */}
-      <section id="inicio" className="section-pad">
-        <Container>
-          <Row className="align-items-center">
-            <Col lg={7}>
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                <Badge bg="dark" className="mb-3 px-3 py-2" style={{ border: '1px solid rgba(139,92,246,0.4)' }}>
-                  Curso Interactivo Premium · 2026
-                </Badge>
-                <h1 className="display-4 fw-bold mb-3">
-                  Domina la IA y<br />
-                  <span className="gradient-text">Monetiza Contenido</span>
-                </h1>
-                <p className="lead text-secondary mb-4" style={{ maxWidth: 540 }}>
-                  Ruta clara, realista y accionable. Desde $0 hasta inversiones seguras.
-                  Con seguimiento de aprendizaje, generador de prompts y métodos actualizados.
-                </p>
-                <div className="d-flex flex-wrap gap-3">
-                  <Button size="lg" onClick={() => scrollTo('ruta')}>Empezar ahora →</Button>
-                  <Button size="lg" variant="outline-light" onClick={() => scrollTo('progreso')}>Ver mi progreso</Button>
-                </div>
-              </motion.div>
-            </Col>
-            <Col lg={5} className="mt-5 mt-lg-0">
-              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}>
-                <Card className="p-4 hover-lift">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <span className="text-secondary small">Tu progreso actual</span>
-                    <span className="fw-bold">{progressPercent}%</span>
-                  </div>
-                  <ProgressBar now={progressPercent} className="mb-3" />
-                  <div className="d-flex justify-content-between small text-secondary">
-                    <span>{completedCount} / {totalModules} módulos</span>
-                    <span>{completed.plan.length} / 30 días</span>
-                  </div>
-                </Card>
-              </motion.div>
-            </Col>
-          </Row>
-        </Container>
-      </section>
-
-      {/* Ruta */}
-      <section id="ruta" className="section-pad" style={{ background: 'rgba(255,255,255,0.02)' }}>
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Tu Ruta de Monetización</h2>
-            <p className="text-secondary">Elige según tu tiempo y capital. Todos empiezan gratis.</p>
-          </div>
-          <Row className="g-4">
-            {levels.map((lvl, i) => (
-              <Col key={lvl.id} md={6} lg={3}>
-                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }}>
-                  <Card className="h-100 p-4 hover-lift">
-                    <span className={`badge-level ${lvl.color} mb-3 d-inline-block`}>{lvl.subtitle}</span>
-                    <h4 className="fw-bold">{lvl.title}</h4>
-                    <div className="text-secondary small mb-2">{lvl.time} · {lvl.dedication}</div>
-                    <p className="small text-secondary mb-3">{lvl.description}</p>
-                    <ul className="small mb-4">
-                      {lvl.items.map(item => <li key={item}>{item}</li>)}
-                    </ul>
-                    <Button variant="outline-light" size="sm" className="mt-auto" onClick={() => scrollTo('modulos')}>
-                      Ver módulos
-                    </Button>
-                  </Card>
-                </motion.div>
-              </Col>
-            ))}
-          </Row>
-        </Container>
-      </section>
-
-      {/* Módulos */}
-      <section id="modulos" className="section-pad">
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Módulos del Curso</h2>
-            <p className="text-secondary">Haz clic para abrir el contenido. Marca como completado para guardar tu progreso.</p>
-          </div>
-          <Row className="g-4">
-            {modules.map((mod, i) => {
-              const isDone = completed.modules.includes(mod.id)
-              return (
-                <Col key={mod.id} md={6} lg={4}>
-                  <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} viewport={{ once: true }}>
-                    <Card className="h-100 p-4 hover-lift" style={{ cursor: 'pointer', borderColor: isDone ? 'rgba(16,185,129,0.4)' : undefined }} onClick={() => openModule(mod)}>
-                      <div className="d-flex justify-content-between align-items-start mb-2">
-                        <span className={`badge-level level-${mod.level}`}>Nivel {mod.level}</span>
-                        <button
-                          className="btn btn-link p-0 text-decoration-none"
-                          onClick={(e) => { e.stopPropagation(); toggleModule(mod.id) }}
-                          title={isDone ? 'Marcar como pendiente' : 'Marcar como completado'}
-                        >
-                          {isDone ? <FiCheckCircle size={22} color="#10b981" /> : <FiCircle size={22} color="#555" />}
-                        </button>
-                      </div>
-                      <h5 className="fw-bold">{mod.title}</h5>
-                      <p className="small text-secondary mb-2">{mod.description}</p>
-                      <div className="small text-muted">{mod.time}</div>
-                    </Card>
-                  </motion.div>
-                </Col>
-              )
-            })}
-          </Row>
-        </Container>
-      </section>
-
-      {/* Module Modal */}
-      <Modal show={showModuleModal} onHide={() => setShowModuleModal(false)} size="lg" centered>
-        {selectedModule && (
-          <>
-            <Modal.Header closeButton closeVariant="white">
-              <Modal.Title>
-                <span className={`badge-level level-${selectedModule.level} me-2`}>Nivel {selectedModule.level}</span>
-                {selectedModule.title}
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <div dangerouslySetInnerHTML={{ __html: selectedModule.content }} />
-            </Modal.Body>
-            <Modal.Footer>
-              <Button
-                variant={completed.modules.includes(selectedModule.id) ? 'success' : 'primary'}
-                onClick={() => {
-                  toggleModule(selectedModule.id)
-                  setShowModuleModal(false)
-                }}
-              >
-                {completed.modules.includes(selectedModule.id) ? '✓ Completado' : 'Marcar como completado'}
-              </Button>
-            </Modal.Footer>
-          </>
-        )}
-      </Modal>
-
-      {/* Herramientas */}
-      <section id="herramientas" className="section-pad" style={{ background: 'rgba(255,255,255,0.02)' }}>
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Stack de Herramientas 2026</h2>
-            <p className="text-secondary">Gratis primero. Paga solo cuando generes ingresos.</p>
-          </div>
-          <Row className="g-4">
-            {[
-              { icon: '✍️', title: 'Texto & Investigación', tools: 'ChatGPT · Claude · Gemini · Perplexity', badge: 'Free + Pro' },
-              { icon: '🎨', title: 'Imágenes', tools: 'Canva AI · Leonardo · Ideogram · Flux', badge: 'Free + Pro' },
-              { icon: '🎬', title: 'Video', tools: 'CapCut · Opus Clip · Runway · Kling', badge: 'Free + Pro' },
-              { icon: '🔊', title: 'Voz', tools: 'ElevenLabs · Google TTS · OpenAI TTS', badge: 'Créditos' },
-              { icon: '⚙️', title: 'Automatización', tools: 'n8n · Make · Zapier · Cursor', badge: 'Free tier' },
-              { icon: '📦', title: 'Venta', tools: 'Gumroad · Payhip · Lemon Squeezy · Fiverr', badge: 'Free' },
-            ].map((t, i) => (
-              <Col key={i} md={6} lg={4}>
-                <Card className="p-4 h-100 hover-lift">
-                  <div className="fs-2 mb-2">{t.icon}</div>
-                  <h5 className="fw-bold">{t.title}</h5>
-                  <p className="small text-secondary mb-3">{t.tools}</p>
-                  <Badge bg="dark" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>{t.badge}</Badge>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </Container>
-      </section>
-
-      {/* Progreso */}
-      <section id="progreso" className="section-pad">
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Tu Progreso</h2>
-            <p className="text-secondary">Se guarda automáticamente en este navegador.</p>
-          </div>
-          <Card className="p-4 mb-4">
-            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-              <div>
-                <h5 className="mb-1">{progressPercent}% completado</h5>
-                <div className="small text-secondary">{completedCount} de {totalModules} módulos · {completed.plan.length} de 30 días del plan</div>
-              </div>
-              <Button variant="outline-light" size="sm" onClick={resetProgress}>
-                <FiRefreshCw className="me-1" /> Reiniciar
-              </Button>
-            </div>
-            <ProgressBar now={progressPercent} style={{ height: 14 }} />
-          </Card>
-
-          <h5 className="mb-3">Plan de 30 Días</h5>
-          <Row className="g-2">
-            {plan30.map(item => {
-              const done = completed.plan.includes(item.day)
-              return (
-                <Col key={item.day} xs={12} md={6} lg={4}>
-                  <div
-                    className="d-flex align-items-start gap-2 p-3 rounded-3"
-                    style={{
-                      background: done ? 'rgba(16,185,129,0.08)' : 'var(--bg-card)',
-                      border: `1px solid ${done ? 'rgba(16,185,129,0.3)' : 'var(--border)'}`,
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => togglePlanDay(item.day)}
-                  >
-                    {done ? <FiCheckCircle color="#10b981" size={18} className="mt-1 flex-shrink-0" /> : <FiCircle color="#555" size={18} className="mt-1 flex-shrink-0" />}
-                    <div>
-                      <div className="small fw-semibold">Día {item.day}</div>
-                      <div className="small text-secondary">{item.task}</div>
-                    </div>
-                  </div>
-                </Col>
-              )
-            })}
-          </Row>
-        </Container>
-      </section>
-
-      {/* IA Helper */}
-      <section id="ia-helper" className="section-pad" style={{ background: 'rgba(255,255,255,0.02)' }}>
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">IA Helper · Generador de Prompts</h2>
-            <p className="text-secondary">Prompts profesionales listos para copiar y usar.</p>
-          </div>
-          <Card className="p-4">
-            <Row className="g-3 mb-4">
-              <Col md={4}>
-                <Form.Select value={promptType} onChange={e => setPromptType(e.target.value)}>
-                  <option value="freelance">Servicio freelance</option>
-                  <option value="digital">Producto digital</option>
-                  <option value="faceless">Script video faceless</option>
-                  <option value="social">Posts redes sociales</option>
-                  <option value="promptpack">Pack de prompts para vender</option>
-                </Form.Select>
-              </Col>
-              <Col md={5}>
-                <Form.Control
-                  type="text"
-                  placeholder="Nicho (ej: clínicas dentales, fitness, finanzas...)"
-                  value={niche}
-                  onChange={e => setNiche(e.target.value)}
-                />
-              </Col>
-              <Col md={3}>
-                <Button className="w-100" onClick={generatePrompt}>
-                  <FiZap className="me-1" /> Generar
-                </Button>
-              </Col>
-            </Row>
-
-            {generatedPrompt && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                <div className="p-3 rounded-3 mb-3" style={{ background: 'var(--bg)', border: '1px solid var(--border)', whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem' }}>
-                  {generatedPrompt}
-                </div>
-                <Button variant="outline-light" onClick={copyPrompt}>
-                  <FiCopy className="me-1" /> {copied ? '¡Copiado!' : 'Copiar prompt'}
-                </Button>
-              </motion.div>
-            )}
-          </Card>
-        </Container>
-      </section>
-
-      {/* Finanzas */}
-      <section id="finanzas" className="section-pad">
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="fw-bold">Finanzas & Inversión</h2>
-            <p className="text-secondary">Opciones realistas ordenadas por nivel de riesgo.</p>
-          </div>
-          <Row className="g-4">
-            <Col md={4}>
-              <Card className="p-4 h-100">
-                <div className="text-success mb-2"><FiDollarSign size={28} /></div>
-                <h5 className="fw-bold">Bajo riesgo</h5>
-                <ul className="small text-secondary">
-                  <li>ETFs de tecnología (QQQ, VGT)</li>
-                  <li>ETFs temáticos de IA (BOTZ, IRBO)</li>
-                  <li>Fondos indexados globales</li>
-                </ul>
-                <p className="small mt-auto">Mejor opción para la mayoría. Diversificado y de largo plazo.</p>
-              </Card>
-            </Col>
-            <Col md={4}>
-              <Card className="p-4 h-100">
-                <div className="text-warning mb-2"><FiTrendingUp size={28} /></div>
-                <h5 className="fw-bold">Riesgo medio</h5>
-                <ul className="small text-secondary">
-                  <li>Acciones individuales (NVDA, MSFT, GOOGL)</li>
-                  <li>Empresas de software e infraestructura</li>
-                  <li>Pequeña posición en cloud / data centers</li>
-                </ul>
-                <p className="small mt-auto">Solo con capital que no necesites a corto plazo.</p>
-              </Card>
-            </Col>
-            <Col md={4}>
-              <Card className="p-4 h-100">
-                <div className="text-danger mb-2"><FiTarget size={28} /></div>
-                <h5 className="fw-bold">Alto riesgo / No recomendado al inicio</h5>
-                <ul className="small text-secondary">
-                  <li>Criptomonedas especulativas</li>
-                  <li>Startups privadas sin liquidez</li>
-                  <li>Apalancamiento o trading diario</li>
-                </ul>
-                <p className="small mt-auto text-warning">Evita esto hasta tener ingresos estables y experiencia.</p>
-              </Card>
-            </Col>
-          </Row>
-          <Card className="p-4 mt-4" style={{ borderColor: 'rgba(245,158,11,0.3)' }}>
-            <p className="mb-0 small">
-              <strong>Aviso importante:</strong> Esto no es consejo financiero personalizado.
-              Invierte solo dinero que puedas permitirte perder. La mejor inversión al principio es en ti mismo (habilidades + tiempo).
-            </p>
-          </Card>
-        </Container>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-5 text-center" style={{ borderTop: '1px solid var(--border)' }}>
-        <Container>
-          <p className="mb-1">Curso creado para uso personal · Actualizado Nov 2026</p>
-          <p className="small text-secondary mb-3">La constancia gana. No es consejo financiero.</p>
-          <a href="https://github.com/Dark-GC/curso-ia-monetizacion-premium" target="_blank" rel="noreferrer" className="text-secondary small">
-            Ver código en GitHub
-          </a>
-        </Container>
-      </footer>
-    </div>
-  )
+import React,{useEffect,useRef,useState} from 'react';
+import {Container,Row,Col,Card,Button,Modal,Form,ProgressBar,Nav,Toast} from 'react-bootstrap';
+import {motion,useReducedMotion} from 'framer-motion';
+import {FiHome,FiCompass,FiSearch,FiBookOpen,FiFeather,FiCpu,FiMessageCircle,FiFolder,FiBarChart2,FiMap,FiDownload,FiArrowUpRight,FiArrowRight,FiLayers,FiActivity,FiShield,FiZap,FiMenu,FiX,FiSun,FiMoon} from 'react-icons/fi';
+import {methods,lessons,sources,reviewed,buildPrompt,totals,validRecord,platformNotes} from './creator-core.js';
+import {resources,labs,assessLab,normalizeLabProgress,labMethods} from './learning-resources.js';
+import {researchSources,normalizeResearch,researchStatus,researchPrompt} from './research-core.js';
+import PromptMaster from './PromptMaster.jsx';
+import Mentor from './Mentor.jsx';
+import TrendRadar from './TrendRadar.jsx';
+import EditorialMonitor from './EditorialMonitor.jsx';
+import FilePicker from './FilePicker.jsx';
+import EntityCard from './EntityCard.jsx';
+import AcademyTracks from './AcademyTracks.jsx';
+import {normalizeTrackWork} from './academy-tracks.js';
+import FinancePlanner from './FinancePlanner.jsx';
+import CashCenter from './CashCenter.jsx';
+import OpportunityCenter from './OpportunityCenter.jsx';
+import {normalizeOpportunities,validateOpportunityLinks,linkReceivable} from './opportunity-core.js';
+import {blankCash,normalizeCash} from './cash-core.js';
+import AdaptiveRoute from './AdaptiveRoute.jsx';
+import {defaultRoute,normalizeRoute} from './adaptive-core.js';
+import {methodGuides,sevenDayPlan,guidePrompt} from './method-guides.js';
+import {normalizePromptLibrary} from './prompt-master.js';
+import {WORKSPACE_KEY as key,MAX_BACKUP_BYTES,emptyWorkspace as empty,normalizeWorkspace as normalize,parseWorkspaceBackup,serializeWorkspace,persistReplacement} from './workspace-backup.js';
+const newEvidence=()=>({topic:'',url:'',notes:'',kind:'signal',cost:'unknown',eligible:'unknown',date:new Date().toISOString().slice(0,10)});
+const money=n=>new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP'}).format(n);
+const panels=['Inicio','Mi ruta','Explorar','Investigar','Academia','Crear','Estudio IA','Mentor','Proyectos','Resultados'];
+const navigation=[{name:'Inicio',icon:FiHome,group:'Workspace'},{name:'Mi ruta',icon:FiMap,group:'Workspace'},{name:'Explorar',icon:FiCompass,group:'Aprendizaje'},{name:'Investigar',icon:FiSearch,group:'Aprendizaje'},{name:'Academia',icon:FiBookOpen,group:'Aprendizaje'},{name:'Crear',icon:FiFeather,group:'Producción'},{name:'Estudio IA',icon:FiCpu,group:'Producción'},{name:'Mentor',icon:FiMessageCircle,group:'Producción'},{name:'Proyectos',icon:FiFolder,group:'Gestión'},{name:'Resultados',icon:FiBarChart2,group:'Gestión'}];
+export default function App(){
+ const reduced=useReducedMotion();
+ const [theme,setTheme]=useState(()=>{try{return localStorage.getItem('monetiza-theme-v1')==='light'?'light':'dark'}catch{return 'dark'}});
+ useEffect(()=>{document.documentElement.setAttribute('data-bs-theme',theme);document.querySelector('meta[name="theme-color"]')?.setAttribute('content',theme==='light'?'#f4f6fb':'#080d19');try{localStorage.setItem('monetiza-theme-v1',theme)}catch{/* theme remains usable for this session */}},[theme]);
+ const [lessonId,setLessonId]=useState(null),[projectId,setProjectId]=useState(null),[recordId,setRecordId]=useState(null);
+ const [financeTab,setFinanceTab]=useState('real');
+ const [menuOpen,setMenuOpen]=useState(false);const menuButton=useRef(null);
+ useEffect(()=>{if(!menuOpen)return;const keydown=e=>{if(e.key==='Escape'){setMenuOpen(false);menuButton.current?.focus()}};window.addEventListener('keydown',keydown);return()=>window.removeEventListener('keydown',keydown)},[menuOpen]);
+ const [data,setData]=useState(()=>{try{const v=localStorage.getItem(key);return v?normalize(JSON.parse(v)):empty()}catch{return null}});
+ const [panel,setPanel]=useState('Inicio'),[filter,setFilter]=useState('Todos'),[search,setSearch]=useState(''),[detail,setDetail]=useState(null),[toast,setToast]=useState(''),[storageError,setStorageError]=useState(false);
+ const [method,setMethod]=useState('ads'),[topic,setTopic]=useState(''),[audience,setAudience]=useState(''),[format,setFormat]=useState('Video vertical 9:16'),[prompt,setPrompt]=useState('');
+ const [entry,setEntry]=useState({title:'',income:'',cost:'',views:''}),[pendingImport,setPendingImport]=useState(null),[activeLab,setActiveLab]=useState(null),[highlightLesson,setHighlightLesson]=useState(null),[highlightProject,setHighlightProject]=useState(null);
+ useEffect(()=>{if(data===null)return;try{localStorage.setItem(key,JSON.stringify(data));setStorageError(false)}catch{setStorageError(true)}},[data]);
+ const [evidence,setEvidence]=useState(newEvidence),[researchDraft,setResearchDraft]=useState(''),[deleteEvidence,setDeleteEvidence]=useState(null),[reference,setReference]=useState(null),[evidenceId,setEvidenceId]=useState(null);
+ const d=data||empty(), stats=totals(d.records), chosen=methods.find(m=>m.id===method);
+ const activeEvidence=d.research.find(x=>x.id===evidenceId);
+ const activeLesson=lessons.find(x=>x.id===lessonId),activeProject=d.projects.find(x=>x.id===projectId),activeRecord=d.records.find(x=>x.id===recordId),projectMethod=methods.find(x=>x.id===activeProject?.method);
+ const toggleLesson=l=>change(v=>({...v,done:v.done.includes(l.id)?v.done.filter(id=>id!==l.id):[...v.done,l.id]}));
+ const toggleProject=(id,i)=>change(v=>({...v,projects:v.projects.map(x=>x.id===id?{...x,done:x.done.includes(i)?x.done.filter(j=>j!==i):[...x.done,i]}:x)}));
+ const change=f=>{if(data===null){setToast('Recupera o inicia un espacio antes de editar.');return}setData(f)};
+ const navigate=p=>{setMenuOpen(false);setPanel(p);window.scrollTo({top:0,behavior:reduced?'instant':'smooth'})};
+ const openRouteActivity=t=>{setHighlightLesson(t.lesson||null);setHighlightProject(t.project||null);if(t.lesson)setLessonId(t.lesson);if(t.project)setProjectId(t.project);if(t.method){setTopic('');setFilter('Todos');setSearch('');setDetail(methods.find(m=>m.id===t.method)||null)}navigate(t.panel)};
+ const addProject=m=>{if(d.projects.length>=500){setToast('Límite de proyectos alcanzado.');return}const title=(topic.trim()||m.title).slice(0,160);change(v=>({...v,projects:[...v.projects,{id:crypto.randomUUID(),method:m.id,title,done:[]}]}));setDetail(null);navigate('Proyectos')};
+ const linkOpportunityProject=o=>{if(o.project){setProjectId(o.project);navigate('Proyectos');return}if(d.projects.length>=500){setToast('Límite de proyectos alcanzado.');return}const id=crypto.randomUUID();change(v=>({...v,projects:[...v.projects,{id,method:o.method,title:o.title,done:[]}],opportunities:v.opportunities.map(x=>x.id===o.id?{...x,project:id}:x)}));setProjectId(id);navigate('Proyectos')};
+ const linkOpportunityCash=id=>{const next=linkReceivable(d.opportunities,d.cash,id,crypto.randomUUID());change(v=>({...v,...next}))};
+ const generate=()=>{const text=buildPrompt(chosen,topic,audience,format);if(!text){setToast('Completa tema y audiencia.');return}setPrompt(text)};
+ const copy=async()=>{try{await navigator.clipboard.writeText(prompt);setToast('Prompt copiado.')}catch{setToast('No se pudo copiar. Selecciona el texto manualmente.')}};
+ const downloadText=(text,name)=>{const url=URL.createObjectURL(new Blob([text],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ const exportData=()=>{if(!data)return;try{downloadText(serializeWorkspace(data),'monetiza-respaldo.json')}catch{downloadText(JSON.stringify(data),'monetiza-recuperacion-sin-validar.json');setToast('Copia de recuperación sin validar; no se garantiza su importación.')}};
+ const exportDamaged=()=>{try{const raw=localStorage.getItem(key);if(raw===null)throw Error();downloadText(raw,'monetiza-datos-originales.json')}catch{setToast('No se pudo leer el original guardado.')}};
+ const replaceWorkspace=(next,message)=>{try{const saved=persistReplacement(localStorage,next);setData(saved);setStorageError(false);setPendingImport(null);setDetail(null);setToast(message)}catch{setStorageError(true);setToast('No se pudo escribir el respaldo. Los datos anteriores se conservan.')}};
+ const importData=async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;try{if(file.size>MAX_BACKUP_BYTES)throw Error('Tamaño');setPendingImport(parseWorkspaceBackup(await file.text()))}catch{setToast('Respaldo inválido o demasiado grande. No se cambió nada.')}};
+ const saveEntry=e=>{e.preventDefault();const r={id:crypto.randomUUID(),title:entry.title.trim(),income:Number(entry.income),cost:Number(entry.cost),views:Number(entry.views)};if(!validRecord(r)||d.records.length>=1000){setToast('Revisa los importes y el nombre.');return}change(v=>({...v,records:[...v.records,r]}));setEntry({title:'',income:'',cost:'',views:''});setToast('Registro añadido.')};
+ const saveEvidence=e=>{e.preventDefault();if(!data)return;try{const item=normalizeResearch([{...evidence,id:crypto.randomUUID()}])[0];if(d.research.length>=100){setToast('Límite de 100 evidencias alcanzado.');return}change(v=>({...v,research:[item,...v.research]}));setEvidence(newEvidence());setToast('Evidencia guardada. Requiere revisión propia.')}catch{setToast('Revisa los campos, la fecha y el enlace HTTPS.')}};
+ const copyResearch=async()=>{try{await navigator.clipboard.writeText(researchDraft);setToast('Prompt de investigación copiado.')}catch{setToast('Selecciona el texto para copiarlo manualmente.')}};
+ const sourceLink=id=>sources[id]&&<a key={id} href={sources[id].url} target="_blank" rel="noopener noreferrer" className="d-block mb-2">{sources[id].name} ↗</a>;
+ const resourceLink=id=>{const item=resources.find(r=>r.id===id);return item&&<div key={id} className="mb-3"><a href={item.url} target="_blank" rel="noopener noreferrer">{item.name} ↗</a><small className="d-block text-secondary">{item.cost}</small></div>};
+ const toggleLabCheck=(lab,i)=>change(v=>{const list=v.labProgress?.[lab.id]||[];return {...v,labProgress:{...v.labProgress,[lab.id]:list.includes(i)?list.filter(n=>n!==i):[...list,i]}}});
+ const visible=methods.filter(m=>(filter==='Todos'||m.category===filter)&&(m.title+' '+m.skill).toLowerCase().includes(search.toLowerCase())).sort((a,b)=>b.speed-a.speed);
+ const card=(title,children)=><Card className="p-3 p-md-4 h-100"><h3 className="h5 fw-bold">{title}</h3>{children}</Card>;
+ return <div className="os-shell" data-bs-theme={theme}><a className="os-skip-link" href="#os-main" onClick={e=>{e.preventDefault();document.getElementById('os-main')?.focus()}}>Saltar al contenido principal</a>
+ <aside className="os-sidebar"><div className="os-brand-row"><div className="os-brand"><span className="os-mark" aria-hidden="true"><FiLayers/></span><div><span className="brand">MONETIZA<span className="brand-accent"> OS</span></span><small>CREATOR INTELLIGENCE</small></div></div><button ref={menuButton} type="button" className="os-menu-toggle" aria-label="Menú de navegación" aria-expanded={menuOpen} aria-controls="os-navigation" onClick={()=>setMenuOpen(v=>!v)}>{menuOpen?<FiX aria-hidden="true"/>:<FiMenu aria-hidden="true"/>}<span>Menú</span></button></div><Nav as="nav" id="os-navigation" className={'os-nav '+(menuOpen?'is-open':'')} aria-label="Navegación">{navigation.map(({name,icon:Icon,group},i)=><React.Fragment key={name}>{(i===0||navigation[i-1].group!==group)&&<span className="os-nav-group">{group}</span>}<Button className={'os-nav-item '+(name===panel?'is-active':'')} variant="link" onClick={()=>navigate(name)} aria-current={name===panel?'page':undefined}><Icon aria-hidden="true"/><span>{name}</span>{name===panel&&<span className="os-nav-indicator" aria-hidden="true"/>}</Button></React.Fragment>)}</Nav><div className="os-sidebar-foot"><span className="os-status-dot"/> Espacio personal <small>Datos en este dispositivo</small></div></aside>
+ <div className="os-workspace"><header className="os-topbar"><div className="os-breadcrumb"><small>WORKSPACE</small><span>{panel}</span></div><div className="os-top-actions"><span className="os-preview-tag">V1.0 · RC1</span><Button className="os-theme-toggle" variant="outline-light" size="sm" aria-label={theme==='dark'?'Activar tema claro':'Activar tema oscuro'} title={theme==='dark'?'Activar tema claro':'Activar tema oscuro'} onClick={()=>setTheme(t=>t==='dark'?'light':'dark')}>{theme==='dark'?<FiSun aria-hidden="true"/>:<FiMoon aria-hidden="true"/>}</Button><Button variant="outline-light" size="sm" onClick={exportData} disabled={!data}><FiDownload aria-hidden="true"/> <span>Respaldar</span></Button></div></header>
+ <Container fluid as="main" id="os-main" tabIndex={-1} className="os-main">
+ {(!data||storageError)&&<Card className="p-3 mb-3 border-warning" role="alert"><p>Almacenamiento no disponible o datos dañados. Los cambios pueden no estar guardados. Conserva un respaldo antes de continuar.</p>{!data&&<div className="d-flex flex-wrap gap-2 mb-2"><Button variant="outline-light" onClick={exportDamaged}>Descargar datos originales</Button><Button onClick={()=>setDetail({reset:true})}>Iniciar espacio nuevo</Button></div>}<FilePicker label="Importar respaldo" onChange={importData}/></Card>}
+ <motion.div key={panel} initial={reduced?false:{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{duration:reduced?0:.22}}>
+ {panel==='Inicio'&&<><div className="os-welcome"><span className="os-eyebrow"><FiActivity aria-hidden="true"/> TU CENTRO DE OPERACIONES</span><span className="os-private"><FiShield aria-hidden="true"/> Local-first · RD$0 adicional</span></div><Card className="os-hero mb-4"><div className="os-orbit" aria-hidden="true"><i/><i/><i/><span><FiCpu/></span></div><div className="os-hero-content"><div className="os-kicker"><FiZap aria-hidden="true"/> CREATOR ACADEMY</div><h1 className="display-5 fw-bold">Aprende. Crea. <span className="gradient-text">Monetiza.</span></h1><p>Domina la inteligencia artificial, transforma ideas en proyectos y valida oportunidades reales. Aprende haciendo, sin gastos nuevos.</p><div className="d-flex flex-wrap gap-2"><Button onClick={()=>navigate('Mi ruta')}>Preparar mi ruta <FiArrowRight aria-hidden="true"/></Button><Button variant="outline-light" onClick={()=>navigate('Explorar')}>Encontrar un método</Button><Button variant="outline-light" onClick={()=>navigate('Academia')}>Aprender hoy</Button></div><small>Los ingresos dependen de tus resultados y elegibilidad; no están garantizados.</small></div></Card><Row className="g-3 mb-4"><Col xs={12} md={4}><Card className="os-stat p-3 p-md-4"><div className="os-stat-head"><span>Aprendizaje</span><FiBookOpen aria-hidden="true"/></div><strong>{d.done.length}<small> / {lessons.length}</small></strong><p>{d.done.length} de {lessons.length} prácticas registradas</p><ProgressBar now={d.done.length/lessons.length*100}/></Card></Col><Col xs={6} md={4}><Card className="os-stat p-3 p-md-4"><div className="os-stat-head"><span>Proyectos</span><FiFolder aria-hidden="true"/></div><strong>{d.projects.length}</strong><p>Proyectos registrados</p></Card></Col><Col xs={6} md={4}><Card className="os-stat p-3 p-md-4"><div className="os-stat-head"><span>Resultado registrado</span><FiBarChart2 aria-hidden="true"/></div><strong className="os-money">{money(stats.income-stats.cost)}</strong><p>Ingresos menos gastos reales</p></Card></Col></Row><div className="os-section-head"><div><span className="os-eyebrow">EXPLORAR TU POTENCIAL</span><h2>Tu espacio creativo</h2></div></div><Row className="g-3 mb-4">{[{name:'Research Engine',label:'Investiga',desc:'Tendencias, fuentes y evidencias.',target:'Investigar',icon:FiSearch},{name:'Prompt & AI Studio',label:'Produce',desc:'Prompts, versiones y storyboards.',target:'Estudio IA',icon:FiCpu},{name:'Academia práctica',label:'Aprende',desc:'Métodos, lecciones y laboratorios.',target:'Academia',icon:FiBookOpen}].map(({name,label,desc,target,icon:Icon})=><Col md={6} xl={4} key={target}><Card className="os-module p-3 p-md-4 h-100"><div className="os-module-icon"><Icon aria-hidden="true"/></div><small className="os-eyebrow">{label}</small><h3 className="h5">{name}</h3><p>{desc}</p><Button variant="outline-light" className="mt-auto" onClick={()=>navigate(target)}>Abrir espacio <FiArrowUpRight aria-hidden="true"/></Button></Card></Col>)}</Row><Card className="os-priority p-3 p-md-4"><div><span className="os-eyebrow">PRIORIDAD DE HOY</span><h3 className="h5 mt-2">Prueba una oferta creativa directa</h3><p>Si necesitas ingresos pronto, valida una muestra comercial antes de invertir tiempo en un canal propio.</p><small className="text-secondary">Catálogo editorial consultado: {reviewed}. No es investigación en vivo.</small></div><Button onClick={()=>{setFilter('Servicios');navigate('Explorar')}}>Explorar servicios creativos <FiArrowRight aria-hidden="true"/></Button></Card></>}
+ {panel==='Mi ruta'&&<AdaptiveRoute data={d} prefs={d.route} disabled={!data} onChange={route=>change(v=>({...v,route:normalizeRoute(route)}))} onAction={openRouteActivity}/>}
+ {panel==='Explorar'&&<><h1>Radar de métodos</h1><p>Orden orientativo: servicios directos antes que monetización por audiencia. Sin garantía de demanda o ingresos.</p><Form.Control className="mb-3" aria-label="Buscar método" placeholder="Buscar por método o habilidad" value={search} onChange={e=>setSearch(e.target.value)}/><div className="d-flex flex-wrap gap-2 mb-4">{['Todos','Servicios','Canales','Productos'].map(f=><Button key={f} variant={f===filter?'primary':'outline-light'} size="sm" onClick={()=>setFilter(f)}>{f}</Button>)}</div><div className="entity-grid">{visible.map(m=><EntityCard key={m.id} kind={m.category} title={m.title} description={m.offer} meta={m.skill} detail={methodGuides[m.id]?methodGuides[m.id].minutes+' min estimados':null} action="Estudiar método" onOpen={()=>setDetail(m)}/>)}</div>{!visible.length&&<p>No hay coincidencias.</p>}<h2 className="h4 mt-5">Monetización por plataforma · RD</h2><Row className="g-3">{platformNotes.map(n=><Col md={4} key={n.name}>{card(n.name,<><strong className="text-info">{n.status}</strong><p className="mt-2">{n.detail}</p>{n.refs.map(sourceLink)}</>)}</Col>)}</Row><p className="text-secondary mt-4">Comprueba cuotas gratuitas, derechos de uso y disponibilidad en República Dominicana antes de ejecutar.</p></>}
+ {panel==='Investigar'&&<><h1>Research Engine</h1><TrendRadar notify={setToast} onInvestigate={topic=>{setEvidence({...newEvidence(),topic:topic.slice(0,160)});setResearchDraft(researchPrompt(topic.slice(0,160)));}}/><EditorialMonitor notify={setToast}/><p>Investiga oportunidades reales y registra evidencia. Los enlaces se abren bajo tu control; el sistema no busca ni verifica automáticamente los datos registrados.</p><h2 className="h4 mt-4">Fuentes para descubrir oportunidades</h2><div className="entity-grid mb-4">{researchSources.map(s=><EntityCard key={s.id} kind="Fuente" title={s.name} description={s.guide} meta="Consulta externa" action="Ver fuente" onOpen={()=>setReference({title:s.name,description:s.guide,url:s.url})}/>)}</div><Card className="p-3 p-md-4 mb-4"><h2 className="h4">Investigación guiada</h2><Form onSubmit={saveEvidence} noValidate><Form.Label className="w-100">Tema de investigación<Form.Control aria-label="Tema de investigación" maxLength={160} value={evidence.topic} onChange={e=>{setEvidence({...evidence,topic:e.target.value});setResearchDraft('')}} placeholder="Ej. Tutoriales de animación con IA"/></Form.Label><Button type="button" className="mb-3" onClick={()=>{const p=researchPrompt(evidence.topic);if(!p){setToast('Escribe un tema primero.');return}setResearchDraft(p)}}>Preparar investigación</Button>{researchDraft&&<><Form.Control as="textarea" aria-label="Prompt de investigación" readOnly rows={9} value={researchDraft}/><div className="d-flex flex-wrap gap-2 my-3"><Button type="button" onClick={copyResearch}>Copiar investigación</Button><Button variant="outline-light" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abrir ChatGPT ↗</Button></div></>}<h3 className="h5 mt-3">Registrar hallazgo</h3><Form.Label className="w-100">URL de evidencia<Form.Control aria-label="URL de evidencia" type="url" maxLength={1000} value={evidence.url} onChange={e=>setEvidence({...evidence,url:e.target.value})}/></Form.Label><Form.Label className="w-100">Notas de evidencia<Form.Control aria-label="Notas de evidencia" as="textarea" rows={3} maxLength={2000} value={evidence.notes} onChange={e=>setEvidence({...evidence,notes:e.target.value})}/></Form.Label><Row className="g-2">{[['kind','Tipo de evidencia',[['signal','Señal de interés'],['policy','Política oficial'],['buyer','Interés de comprador'],['sale','Venta registrada']]],['cost','Costo adicional',[['unknown','No comprobado'],['zero','RD$0 comprobado'],['paid','Requiere pago']]],['eligible','Elegibilidad y derechos',[['unknown','No comprobados'],['yes','Comprobados por mí'],['no','No compatible']]]].map(([key,label,opts])=><Col xs={12} md={4} key={key}><Form.Label className="w-100">{label}<Form.Select aria-label={label} value={evidence[key]} onChange={e=>setEvidence({...evidence,[key]:e.target.value})}>{opts.map(([v,t])=><option value={v} key={v}>{t}</option>)}</Form.Select></Form.Label></Col>)}</Row><Form.Label className="w-100">Fecha de consulta<Form.Control aria-label="Fecha de consulta" type="date" value={evidence.date} onChange={e=>setEvidence({...evidence,date:e.target.value})}/></Form.Label><Button type="submit" disabled={!data}>Guardar evidencia</Button></Form></Card><h2 className="h4">Hallazgos guardados</h2>{!d.research.length&&<p>Aún no hay hallazgos registrados.</p>}<div className="entity-grid">{d.research.map(x=><EntityCard key={x.id} kind="Evidencia" title={x.topic} description={x.notes||'Sin notas'} meta={researchStatus(x)} detail={x.date} action="Ver evidencia" onOpen={()=>setEvidenceId(x.id)}/>)}</div></>}
+ {panel==='Academia'&&<><h1>Academia práctica</h1><p>Selecciona una lección para estudiar, practicar y registrar tu avance.</p><AcademyTracks work={d.trackWork} disabled={!data} notify={setToast} onChange={trackWork=>change(v=>({...v,trackWork}))} onMethod={id=>{setDetail(methods.find(m=>m.id===id));navigate('Explorar')}}/><h2>Lecciones fundamentales</h2><div className="entity-grid">{[...lessons].sort((a,b)=>Number(b.id===highlightLesson)-Number(a.id===highlightLesson)).map(l=><EntityCard key={l.id} kind="Lección" title={l.title} description={l.explanation} meta={l.id===highlightLesson?'Práctica recomendada':d.done.includes(l.id)?'Práctica registrada':'Por practicar'} progress={d.done.includes(l.id)?100:0} action="Ver lección" onOpen={()=>setLessonId(l.id)}/>)}</div></>}
+ {panel==='Academia'&&<section className="mt-5"><h2 className="h4">Laboratorios de producción</h2><p>Aprende creando entregables reales. Los criterios son de autoevaluación y no certifican calidad ni ingresos.</p><div className="entity-grid">{labs.map(l=>{const score=assessLab(l,d.labProgress?.[l.id]||[]);return <EntityCard key={l.id} kind="Laboratorio" title={l.title} description={l.goal} meta={score.done+' de '+l.checks.length+' criterios'} progress={score.percent} action={'Abrir laboratorio: '+l.title} onOpen={()=>setActiveLab(l)}/>})}</div><h2 className="h4 mt-5">Biblioteca de recursos</h2><p>Materiales y herramientas externas. No se instalan automáticamente ni se garantiza que sus servicios adicionales sean gratuitos.</p><div className="entity-grid">{resources.map(r=><EntityCard key={r.id} kind="Recurso" title={r.name} description={r.cost} meta={r.kind} action="Ver recurso" onOpen={()=>setReference({title:r.name,description:r.cost,url:r.url,date:r.checked})}/>)}</div></section>}
+ {panel==='Crear'&&<><h1>Creator Studio</h1><p>Generador local de briefs y prompts. No llama a modelos ni genera multimedia.</p><Card className="p-3 p-md-4"><Form.Label>Método<Form.Select aria-label="Método" value={method} onChange={e=>{setMethod(e.target.value);setPrompt('')}}>{methods.map(m=><option key={m.id} value={m.id}>{m.title}</option>)}</Form.Select></Form.Label><Form.Label>Tema<Form.Control value={topic} maxLength={160} onChange={e=>{setTopic(e.target.value);setPrompt('')}} placeholder="Ej. Curiosidades científicas"/></Form.Label><Form.Label>Audiencia<Form.Control value={audience} maxLength={160} onChange={e=>{setAudience(e.target.value);setPrompt('')}} placeholder="Ej. Adultos interesados en ciencia"/></Form.Label><Form.Label>Formato<Form.Select aria-label="Formato" value={format} onChange={e=>{setFormat(e.target.value);setPrompt('')}}>{['Video vertical 9:16','Video horizontal 16:9','Carrusel','Producto digital'].map(f=><option key={f}>{f}</option>)}</Form.Select></Form.Label><div className="d-flex flex-wrap gap-2 mt-3"><Button onClick={generate}>Generar flujo y prompt</Button><Button variant="outline-light" disabled={!data} onClick={()=>addProject(chosen)}>Crear proyecto</Button></div>{prompt&&<><Form.Label className="mt-4">Prompt listo para tu asistente IA<Form.Control as="textarea" rows={12} readOnly value={prompt}/></Form.Label><div className="d-flex flex-wrap gap-2"><Button onClick={copy}>Copiar prompt</Button><Button variant="outline-light" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abrir ChatGPT ↗</Button></div></>}</Card></>}
+ {panel==='Estudio IA'&&<PromptMaster library={d.promptLibrary} disabled={!data} notify={setToast} onChange={f=>change(v=>({...v,promptLibrary:f(v.promptLibrary||[])}))}/>}
+ {panel==='Mentor'&&<Mentor notify={setToast}/>}
+ {panel==='Proyectos'&&<><h1>Mis proyectos</h1><p>Tu producción, organizada por avances y próximos pasos.</p>{!d.projects.length&&<Card className="p-4"><h2 className="h5">Tu primer proyecto empieza aquí</h2><p>Selecciona un método de creación y prepara una muestra.</p><Button onClick={()=>navigate('Explorar')}>Explorar métodos</Button></Card>}<div className="entity-grid">{[...d.projects].sort((a,b)=>Number(b.id===highlightProject)-Number(a.id===highlightProject)).map(p=>{const m=methods.find(x=>x.id===p.method);const next=m.steps.find((_,i)=>!p.done.includes(i));return <EntityCard key={p.id} kind="Proyecto" title={p.title} description={m.title} meta={next?'En progreso':'Pasos completados'} detail={p.done.length+' / '+m.steps.length+' pasos'} progress={p.done.length/m.steps.length*100} action="Ver proyecto" onOpen={()=>setProjectId(p.id)}/>})}</div></>}
+ {panel==='Resultados'&&<><h1>Centro financiero</h1><p>Controla tus resultados reales y evalúa ofertas antes de invertir tiempo o dinero.</p><div className="finance-tabs mb-4"><Button variant={financeTab==='real'?'primary':'outline-light'} onClick={()=>setFinanceTab('real')}>Resultados reales</Button><Button variant={financeTab==='plan'?'primary':'outline-light'} onClick={()=>setFinanceTab('plan')}>Planificar una oferta</Button><Button variant={financeTab==='cash'?'primary':'outline-light'} onClick={()=>setFinanceTab('cash')} >Efectivo y cobros</Button><Button variant={financeTab==='opportunities'?'primary':'outline-light'} onClick={()=>setFinanceTab('opportunities')}>Oportunidades</Button></div>{financeTab==='opportunities'?<OpportunityCenter items={d.opportunities} cash={d.cash} projects={d.projects} disabled={!data} notify={setToast} onSave={opportunities=>change(v=>({...v,opportunities}))} onLink={linkOpportunityCash} onProject={linkOpportunityProject} onCash={()=>setFinanceTab('cash')}/>:financeTab==='cash'?<CashCenter data={d.cash} disabled={!data} notify={setToast} onChange={cash=>change(v=>({...v,cash}))}/>:financeTab==='plan'?<FinancePlanner/>:<><p>Registra únicamente ingresos y gastos efectivamente realizados. Cifras en DOP, antes de impuestos.</p><Row className="g-3 mb-3"><Col sm={4}>{card('Ingresos',<strong>{money(stats.income)}</strong>)}</Col><Col sm={4}>{card('Gastos',<strong>{money(stats.cost)}</strong>)}</Col><Col sm={4}>{card('Diferencia',<strong>{money(stats.income-stats.cost)}</strong>)}</Col></Row><Card className="p-3 mb-3"><Form onSubmit={saveEntry}><Form.Label className="w-100">Pieza o proyecto<Form.Control required maxLength={160} value={entry.title} onChange={e=>setEntry({...entry,title:e.target.value})}/></Form.Label><Row>{[['income','Ingresos DOP'],['cost','Gastos DOP'],['views','Visualizaciones']].map(([k,l])=><Col md={4} key={k}><Form.Label className="w-100">{l}<Form.Control type="number" min="0" max="1000000000" step={k==='views'?'1':'0.01'} value={entry[k]} onChange={e=>setEntry({...entry,[k]:e.target.value})}/></Form.Label></Col>)}</Row><Button type="submit" disabled={!data}>Registrar resultado</Button></Form></Card><p>Visualizaciones registradas: {stats.views.toLocaleString('es-DO')}</p><div className="entity-grid">{d.records.map(r=><EntityCard key={r.id} kind="Resultado" title={r.title} description={money(r.income-r.cost)+' neto registrado'} meta={r.income-r.cost>=0?'Resultado no negativo':'Pérdida registrada'} detail={r.views.toLocaleString('es-DO')+' vistas'} action="Ver resultado" onOpen={()=>setRecordId(r.id)}/>)}</div></>}</>}
+ </motion.div><footer className="mt-5 border-top pt-3"><small className="text-secondary">Datos locales sin sincronización ni cifrado. El respaldo principal no contiene informes importados de tendencias/editorial ni la preferencia de tema. No introduzcas contraseñas ni información sensible. El progreso de V3 se conserva por separado.</small><div className="os-footer-actions"><FilePicker label="Restaurar respaldo JSON" onChange={importData}/></div></footer></Container></div>
+ <Modal show={!!activeLesson} onHide={()=>setLessonId(null)} centered scrollable size="lg"><Modal.Header closeButton closeVariant="white"><Modal.Title>{activeLesson?.title}</Modal.Title></Modal.Header><Modal.Body>{activeLesson&&<><span className="os-eyebrow">ACADEMIA · PRÁCTICA</span><h5>Qué aprenderás</h5><p>{activeLesson.explanation}</p><h5>Ejercicio</h5><p>{activeLesson.exercise}</p><h5>Evidencia de aprendizaje</h5><p>{activeLesson.check}</p>{activeLesson.ref&&sourceLink(activeLesson.ref)}<small>Autoevaluación: no equivale a una certificación.</small></>}</Modal.Body><Modal.Footer>{activeLesson&&<Button disabled={!data} variant={d.done.includes(activeLesson.id)?'success':'primary'} onClick={()=>toggleLesson(activeLesson)}>{d.done.includes(activeLesson.id)?'✓ Práctica registrada':'Registrar práctica realizada'}</Button>}<Button variant="outline-light" onClick={()=>setLessonId(null)}>Cerrar lección</Button></Modal.Footer></Modal>
+ <Modal show={!!activeProject} onHide={()=>setProjectId(null)} centered scrollable size="lg"><Modal.Header closeButton closeVariant="white"><Modal.Title>{activeProject?.title}</Modal.Title></Modal.Header><Modal.Body>{activeProject&&projectMethod&&<><span className="os-eyebrow">{projectMethod.category} · {projectMethod.title}</span><p className="mt-3">{activeProject.done.length} de {projectMethod.steps.length} pasos</p><ProgressBar now={activeProject.done.length/projectMethod.steps.length*100}/><h5>Flujo de trabajo</h5><div className="d-grid gap-2">{projectMethod.steps.map((step,i)=><Button key={i} className="text-start" aria-pressed={activeProject.done.includes(i)} variant={activeProject.done.includes(i)?'success':'outline-light'} onClick={()=>toggleProject(activeProject.id,i)}>{activeProject.done.includes(i)?'✓':'○'} {step}</Button>)}</div><h5>Control de calidad</h5><p>{projectMethod.qa}</p></>}</Modal.Body><Modal.Footer><Button onClick={()=>setProjectId(null)}>Cerrar proyecto</Button></Modal.Footer></Modal>
+ <Modal show={!!activeRecord} onHide={()=>setRecordId(null)} centered scrollable><Modal.Header closeButton closeVariant="white"><Modal.Title>{activeRecord?.title}</Modal.Title></Modal.Header><Modal.Body>{activeRecord&&<><div className="finance-detail"><div><small>Ingresos cobrados</small><strong>{money(activeRecord.income)}</strong></div><div><small>Gastos realizados</small><strong>{money(activeRecord.cost)}</strong></div><div><small>Diferencia antes de impuestos</small><strong>{money(activeRecord.income-activeRecord.cost)}</strong></div><div><small>Visualizaciones</small><strong>{activeRecord.views.toLocaleString('es-DO')}</strong></div></div><p className="mt-3">Registro autodeclarado; no incluye necesariamente el valor de tu tiempo, impuestos u otros costos.</p></>}</Modal.Body><Modal.Footer><Button onClick={()=>setRecordId(null)}>Cerrar resultado</Button></Modal.Footer></Modal>
+ <Modal show={!!detail} onHide={()=>setDetail(null)} centered scrollable size="lg"><Modal.Header closeButton closeVariant="white"><Modal.Title>{detail?.title||'Iniciar espacio nuevo'}</Modal.Title></Modal.Header><Modal.Body>{detail?.reset?<p>Esto reemplazará los datos dañados del espacio. Descarga los datos originales antes de continuar. No modifica el progreso anterior V3.</p>:detail&&<><p>{detail.offer}</p><p>{detail.evidence}</p><h5>Guía de ejecución</h5><ol>{detail.steps.map(s=><li key={s} className="mb-2">{s}</li>)}</ol><h5>Control de calidad</h5><p>{detail.qa}</p>{methodGuides[detail.id]&&<><h5>Guía práctica ampliada</h5><p><strong>Entregable:</strong> {methodGuides[detail.id].sample}</p><p><strong>Tiempo orientativo de la primera muestra:</strong> {methodGuides[detail.id].minutes} min; no es un tiempo medido ni garantía.</p><p>Ruta sin gasto adicional: usa recursos propios y herramientas disponibles; comprueba requisitos y licencias.</p>{methodGuides[detail.id].tools.map(resourceLink)}<h5>Plan de 7 días</h5><ol>{sevenDayPlan(detail.id).map(step=><li key={step} className="mb-2">{step}</li>)}</ol><h5>Medición del experimento</h5><p>{methodGuides[detail.id].measure}</p><Form.Label className="w-100">Prompt de la práctica<Form.Control aria-label="Prompt de la práctica" as="textarea" readOnly rows={5} value={guidePrompt(detail.id)}/></Form.Label><Button size="sm" className="mb-3" variant="outline-light" onClick={async()=>{try{await navigator.clipboard.writeText(guidePrompt(detail.id));setToast('Prompt de práctica copiado.')}catch{setToast('Selecciona el texto para copiarlo manualmente.')}}}>Copiar prompt de práctica</Button></>}<h5>Fuentes y condiciones</h5>{detail.refs.length?detail.refs.map(sourceLink):<p>No existe evidencia de ventas aportada. Valida mediante una muestra y conversaciones con compradores.</p>}<small>Consulta editorial: {reviewed}. Verifica elegibilidad, cuotas y licencias en tu cuenta.</small></>}</Modal.Body><Modal.Footer>{detail?.reset?<Button onClick={()=>replaceWorkspace(empty(),'Espacio nuevo guardado.')}>Iniciar nuevo</Button>:detail&&<><Button variant="outline-light" onClick={()=>{setMethod(detail.id);setPrompt('');setDetail(null);navigate('Crear')}}>Abrir Creator Studio</Button><Button disabled={!data} onClick={()=>addProject(detail)}>Iniciar proyecto</Button></>}</Modal.Footer></Modal>
+ <Modal show={!!activeLab} onHide={()=>setActiveLab(null)} centered scrollable size="lg"><Modal.Header closeButton closeVariant="white"><Modal.Title>{activeLab?.title}</Modal.Title></Modal.Header><Modal.Body>{activeLab&&<><p>{activeLab.goal}</p><h5>Entregable</h5><p>{activeLab.deliverable}</p><h5>Proceso de trabajo</h5><ol>{activeLab.steps.map(step=><li key={step} className="mb-2">{step}</li>)}</ol><h5>Control de calidad</h5><p>{assessLab(activeLab,d.labProgress?.[activeLab.id]||[]).done} de {activeLab.checks.length} criterios registrados</p><div className="d-grid gap-2 mb-3">{activeLab.checks.map((check,i)=>{const checked=(d.labProgress?.[activeLab.id]||[]).includes(i);return <Button key={i} className="text-start" disabled={!data} aria-pressed={checked} variant={checked?'success':'outline-light'} onClick={()=>toggleLabCheck(activeLab,i)}>{checked?'✓':'○'} {check}</Button>})}</div><h5>Recursos</h5>{activeLab.resourceIds.map(resourceLink)}</>}</Modal.Body><Modal.Footer>{activeLab&&<><Button variant="outline-light" onClick={()=>{setMethod(labMethods[activeLab.id]);setTopic('');setAudience('');setPrompt('');setFormat(activeLab.id==='pack'?'Producto digital':'Video vertical 9:16');setActiveLab(null);navigate('Crear')}}>Preparar prompt</Button><Button disabled={!data} onClick={()=>{const m=methods.find(x=>x.id===labMethods[activeLab.id]);setActiveLab(null);if(m){if(d.projects.length>=500){setToast('Límite de proyectos alcanzado.');return}change(v=>({...v,projects:[...v.projects,{id:crypto.randomUUID(),method:m.id,title:activeLab.title,done:[]}]}));navigate('Proyectos')}}}>Crear proyecto del laboratorio</Button></>}</Modal.Footer></Modal>
+ <Modal show={!!reference} onHide={()=>setReference(null)} centered scrollable><Modal.Header closeButton closeVariant="white"><Modal.Title>{reference?.title}</Modal.Title></Modal.Header><Modal.Body>{reference&&<><p>{reference.description}</p>{reference.date&&<small>Fecha editorial: {reference.date}; verifica condiciones actuales.</small>}</>}</Modal.Body><Modal.Footer><Button variant="outline-light" onClick={()=>setReference(null)}>Cerrar</Button>{reference&&<a className="btn btn-primary" href={reference.url} target="_blank" rel="noopener noreferrer">Consultar fuente ↗</a>}</Modal.Footer></Modal>
+ <Modal show={!!activeEvidence} onHide={()=>setEvidenceId(null)} centered scrollable size="lg"><Modal.Header closeButton closeVariant="white"><Modal.Title>{activeEvidence?.topic}</Modal.Title></Modal.Header><Modal.Body>{activeEvidence&&<><p className="text-info">{researchStatus(activeEvidence)}</p><h5>Observaciones registradas</h5><p className="text-break" style={{whiteSpace:'pre-wrap'}}>{activeEvidence.notes||'Sin notas'}</p><p>Fecha de consulta: {activeEvidence.date} · Registro personal no auditado.</p><a className="text-break" href={activeEvidence.url} target="_blank" rel="noopener noreferrer">Abrir evidencia ↗</a></>}</Modal.Body><Modal.Footer><Button variant="outline-light" onClick={()=>setEvidenceId(null)}>Cerrar</Button>{activeEvidence&&<Button disabled={!data} variant="outline-light" onClick={()=>{setDeleteEvidence(activeEvidence.id);setEvidenceId(null)}}>Eliminar evidencia</Button>}</Modal.Footer></Modal>
+ <Modal show={!!deleteEvidence} onHide={()=>setDeleteEvidence(null)} centered><Modal.Header closeButton closeVariant="white"><Modal.Title>Eliminar evidencia</Modal.Title></Modal.Header><Modal.Body>El registro se eliminará de este dispositivo. Conserva un respaldo si lo necesitas.</Modal.Body><Modal.Footer><Button variant="outline-light" onClick={()=>setDeleteEvidence(null)}>Cancelar</Button><Button variant="danger" onClick={()=>{change(v=>({...v,research:v.research.filter(x=>x.id!==deleteEvidence)}));setDeleteEvidence(null)}}>Confirmar eliminación</Button></Modal.Footer></Modal>
+ <Modal show={!!pendingImport} onHide={()=>setPendingImport(null)} centered><Modal.Header closeButton closeVariant="white"><Modal.Title>Restaurar respaldo</Modal.Title></Modal.Header><Modal.Body><p>Reemplazará los datos actuales del espacio, incluyendo proyectos, aprendizaje, oportunidades y finanzas. No incluye informes editoriales, tendencias ni tema guardados por separado. Los archivos no están cifrados ni autenticados.</p>{pendingImport&&<div className="finance-detail"><div><small>Proyectos</small><strong>{pendingImport.projects.length}</strong></div><div><small>Registros reales</small><strong>{pendingImport.records.length}</strong></div><div><small>Oportunidades</small><strong>{pendingImport.opportunities.length}</strong></div><div><small>Itinerarios con registros</small><strong>{Object.keys(pendingImport.trackWork).length}</strong></div></div>}<Button className="mt-3" variant="outline-light" onClick={data?exportData:exportDamaged}>{data?'Descargar respaldo actual':'Descargar datos originales'}</Button></Modal.Body><Modal.Footer><Button variant="outline-light" onClick={()=>setPendingImport(null)}>Cancelar</Button><Button onClick={()=>replaceWorkspace(pendingImport,'Respaldo restaurado y guardado.')}>Restaurar</Button></Modal.Footer></Modal>
+ <Toast show={!!toast} onClose={()=>setToast('')} delay={4000} autohide className="position-fixed bottom-0 end-0 m-3" style={{zIndex:2000}}><Toast.Header><strong className="me-auto">Monetiza OS</strong></Toast.Header><Toast.Body>{toast}</Toast.Body></Toast>
+ </div>;
 }

@@ -1,0 +1,10 @@
+// Manual review of the official pages on 2026-11-25, not an attestation of HTML hashes.
+export const semanticReviews={
+ youtubeRD:{date:'2026-11-25',status:'CONSULTED',summary:'El programa ampliado incluye República Dominicana. El acceso inicial a funciones de financiación de fans y Shopping no equivale al reparto de ingresos por anuncios. Verifica elegibilidad, umbrales y disponibilidad de cada función en YouTube Studio.'},
+ youtube:{date:'2026-11-25',status:'CONSULTED',summary:'La política de contenido no auténtico incluye contenido repetitivo o producido masivamente. La política de contenido reutilizado se evalúa por separado. Tener permiso de uso no garantiza monetización.'},
+ metaUpdate:{date:'2026-11-25',status:'CONSULTED',summary:'La actualización del 13 de noviembre de 2026 anuncia Creator Fast Track College Edition para estudiantes residentes en EE. UU. sujetos a requisitos. No debe presentarse como disponible en República Dominicana ni como ingreso garantizado para esta cuenta.'},
+ meta:{date:'2026-11-25',status:'CONSULTED',summary:'Meta prioriza contenido producido por el creador y aportaciones originales sustanciales. Cambios menores, compilaciones o narraciones sin aporte significativo pueden perder distribución o monetización. Consulta el panel profesional.'},
+ microsoft:{date:'2026-11-25',status:'CONSULTED',summary:'El repositorio ofrece 21 lecciones de IA generativa, con ejemplos y distintos proveedores. El material de estudio no garantiza acceso gratuito a API, modelos ni hardware; comprueba requisitos antes de ejecutar ejercicios.'},
+ license:{date:'2026-11-25',status:'CONSULTED',summary:'La licencia MIT permite utilizar y modificar el material cubierto, conservando avisos de copyright y licencia en copias o partes sustanciales. No concede automáticamente derechos sobre servicios, voces, activos o modelos externos.'},
+ tiktok:{date:'2026-11-25',status:'PENDING',summary:'No se confirmó elegibilidad actual de Creator Rewards en República Dominicana. El recolector detectó una redirección fuera de su lista permitida; no se elude el bloqueo ni se cuenta con ese ingreso.'}
+};

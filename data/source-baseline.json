@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-11-25T19:54:56.001Z",
+  "notice": "Huella HTML: cambios pueden ser cosméticos. No valida hechos, políticas ni rentabilidad. Revisión humana requerida.",
+  "sources": {
+    "youtubeRD": {
+      "sha256": "81aee2841dae3917f920439fad256dc98f59774528be1f788824ee5dbfa99c66",
+      "url": "https://support.google.com/youtube/answer/13429240",
+      "bytes": 1641544,
+      "status": "BASELINE"
+    },
+    "metaUpdate": {
+      "sha256": "6c08ee9a4d453e6db43b916c8763e768ec0eb422be6abb1e5c5df16e36e7d9df",
+      "url": "https://about.fb.com/news/2026/03/creator-fast-track-grow-your-audience-earn-money-on-facebook/",
+      "bytes": 549888,
+      "status": "BASELINE"
+    },
+    "youtube": {
+      "sha256": "dece575330ac061db3351eabb4ceaa9b2fe39bb626aa8ebc984790957e0ac460",
+      "url": "https://support.google.com/youtube/answer/1311392",
+      "bytes": 1658069,
+      "status": "BASELINE"
+    },
+    "meta": {
+      "sha256": "debcb996fd9834e8553a61b8adac46eb6a2e835ae885d63dff85c8af1d45520c",
+      "url": "https://about.fb.com/news/2026/03/rewarding-original-creators-on-facebook/",
+      "bytes": 598461,
+      "status": "BASELINE"
+    },
+    "tiktok": {
+      "status": "UNAVAILABLE",
+      "error": "URL fuera de lista"
+    },
+    "microsoft": {
+      "sha256": "4a06df5b7414d1c518c42f2b9a6459f9b863b49d44e6be15b1775a797f567652",
+      "url": "https://github.com/microsoft/generative-ai-for-beginners",
+      "bytes": 476305,
+      "status": "BASELINE"
+    },
+    "license": {
+      "sha256": "334f7a29c1933fd041848ce5bf3b8cd7853bac376d42e804142c210a1e0b4172",
+      "url": "https://github.com/microsoft/generative-ai-for-beginners/blob/main/LICENSE",
+      "bytes": 180835,
+      "status": "BASELINE"
+    }
+  }
+}

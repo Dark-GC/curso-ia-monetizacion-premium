@@ -1,0 +1,57 @@
+name: Creator QA
+on:
+  pull_request:
+    branches: [panda]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: creator-qa-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Runtime
+        run: node --version && npm --version
+      - name: Core tests
+        run: npm test
+      - name: Reproducible install (no lifecycle scripts)
+        run: npm ci --ignore-scripts --no-fund --no-audit
+      - name: Build
+        run: npm run build
+      - name: Static distribution budget and manifest
+        run: node scripts/release-check.mjs
+      - name: Dependency audit
+        run: npm audit --audit-level=high
+      - name: Install Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Browser acceptance
+        run: npm run test:e2e
+
+      - name: Visual QA screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: monetiza-visual-qa
+          path: test-results/**/*.png
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Downloadable static build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: monetiza-preview-dist
+          path: dist/
+          retention-days: 7
+          if-no-files-found: error
+      - name: Release manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: monetiza-release-manifest
+          path: release-manifest.json
+          retention-days: 7
+          if-no-files-found: error
