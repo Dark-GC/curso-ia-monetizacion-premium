@@ -13,6 +13,7 @@ export async function generateLocal(text,{provider=globalThis.LanguageModel,sign
   session=await provider.create({...languageOptions,signal,monitor(m){m.addEventListener('downloadprogress',e=>{if(Number.isFinite(e.loaded))onProgress(Math.min(1,Math.max(0,e.loaded)))})}});
   if(signal?.aborted)throw Error('Cancelado');
   const result=await session.prompt(text,{signal});
+  if(signal?.aborted)throw Error('Cancelado');
   if(typeof result!=='string'||!result.trim())throw Error('Sin respuesta del modelo');
   return result.slice(0,20000);
  }finally{session?.destroy?.()}
@@ -26,4 +27,23 @@ export const mentorTasks={
 export function mentorPrompt(task,context){
  if(!Object.hasOwn(mentorTasks,task)||typeof context!=='string'||!context.trim()||context.length>5000)return '';
  return mentorTasks[task]+'\nContexto: '+context.trim()+'\nResponde en español. Presupuesto RD$0. No inventes fuentes, ingresos, tendencias, permisos ni elegibilidad. No tienes acceso web: indica qué investigar y qué necesita comprobación. No prometas resultados.';
+}
+
+export const diagnosticPrompt='Responde en español con una única palabra: LISTO. No añadas otra información.';
+export async function testLocalInference({provider=globalThis.LanguageModel,signal,clock=()=>performance.now()}={}){
+ const availability=await localAvailability(provider);
+ if(availability!=='available')return {status:'NOT_READY',availability};
+ const start=clock();
+ const answer=await generateLocal(diagnosticPrompt,{provider,signal});
+ return {status:answer.trim().toUpperCase()==='LISTO'?'MATCH':'RESPONSE_REVIEW',elapsedMs:Math.max(0,Math.round(clock()-start)),answer:answer.slice(0,200)};
+}
+const manualPlans={
+ learning:['Define una habilidad y una actividad que puedas completar con herramientas disponibles.','Dedica 10 minutos a estudiar un ejemplo y 15 a producir una muestra propia.','Usa los últimos 5 minutos para anotar errores y la siguiente práctica.'],
+ creation:['Escribe el objetivo, audiencia, duración y recursos autorizados.','Prepara tres enfoques y selecciona uno; redacta guion y lista de planos.','Produce una muestra con material propio y revisa continuidad, texto, audio y derechos.'],
+ review:['Copia los requisitos originales en una lista.','Compara cada requisito con tu resultado y registra evidencia concreta de los fallos.','Prioriza las correcciones; vuelve a probar y documenta lo que queda pendiente.'],
+ income:['Identifica un cliente potencial y una necesidad concreta sin recopilar datos sensibles.','Prepara una muestra pequeña, estima tiempo y costos en el centro financiero.','Presenta una propuesta personalizada si tienes permiso; registra interés, acuerdo y cobro por separado.']
+};
+export function manualMentorPlan(task,context){
+ if(!mentorPrompt(task,context))return '';
+ return ['GUÍA MANUAL · PLANTILLA, NO GENERADA POR IA','Tu contexto: '+context.trim(),...manualPlans[task].map((s,i)=>(i+1)+'. '+s),'Entregable: una muestra o ficha de revisión con evidencia y próximos pasos.','RD$0 de gastos adicionales: utiliza recursos disponibles; comprueba derechos, condiciones y resultados reales.'].join('\n');
 }

@@ -336,3 +336,13 @@ test('editorial monitor exposes blocked source and keeps imported report provena
  await area.getByLabel('Importar informe editorial').setInputFiles({name:'editorial.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(report))});await expect(area.getByText(/Informe editorial importado · procedencia no autenticada/)).toBeVisible();
  await page.reload();await navigate(page,'Investigar');await expect(area.getByText(/Informe editorial importado · procedencia no autenticada/)).toBeVisible();await area.getByRole('button',{name:'Ver detalle editorial'}).click();await page.screenshot({path:testInfo.outputPath('editorial-monitor.png'),animations:'disabled'});await area.getByRole('button',{name:'Restaurar captura editorial'}).click();await expect(area.getByText(/Captura editorial incluida/)).toBeVisible();
 });
+
+test('mentor manual fallback works without provider and clears stale guidance',async({page},testInfo)=>{
+ await page.addInitScript(()=>Object.defineProperty(globalThis,'LanguageModel',{value:undefined,configurable:true}));await page.goto('/');await navigate(page,'Mentor');
+ await expect(page.getByRole('button',{name:'Probar inferencia local'})).toBeDisabled();await page.getByLabel('Contexto del mentor').fill('Muestra de catálogo');await page.getByRole('button',{name:'Preparar guía manual'}).click();await expect(page.getByLabel('Guía manual del mentor')).toHaveValue(/NO GENERADA POR IA/);
+ await page.screenshot({path:testInfo.outputPath('mentor-manual.png'),animations:'disabled'});await page.getByLabel('Contexto del mentor').fill('Otro contexto');await expect(page.getByLabel('Guía manual del mentor')).toHaveCount(0);
+});
+test('mentor inference diagnostic uses only test prompt with simulated provider',async({page},testInfo)=>{
+ await page.addInitScript(()=>Object.defineProperty(globalThis,'LanguageModel',{configurable:true,value:{availability:async()=> 'available',create:async()=>({prompt:async input=>input.includes('LISTO')?'LISTO':'NO',destroy(){}})}}));await page.goto('/');await navigate(page,'Mentor');await page.getByLabel('Contexto del mentor').fill('Contexto no enviado en prueba');
+ await page.getByRole('button',{name:'Probar inferencia local'}).click();await expect(page.getByText('Respuesta esperada recibida',{exact:true})).toBeVisible();await expect(page.getByLabel('Respuesta generativa local')).toHaveCount(0);await page.screenshot({path:testInfo.outputPath('mentor-diagnostic-mock.png'),animations:'disabled'});
+});
