@@ -1,5 +1,5 @@
 // Isolated schema contract. No storage writes, network, or changes to RC1.
-import {normalizeWorkspace,parseWorkspaceBackup,serializeWorkspace,MAX_BACKUP_BYTES} from '../workspace-backup.js';
+import {normalizeWorkspace,parseWorkspaceBackup,serializeWorkspace,MAX_BACKUP_BYTES,WORKSPACE_KEY} from '../workspace-backup.js';
 export const SCHEMA='monetiza.workspace';
 export const SCHEMA_VERSION=1;
 export const EXPANSION_KEY='monetiza-os-x-workspace-v1';
@@ -14,6 +14,7 @@ function equal(a,b){
 }
 export function encodeEnvelope(workspace){
  const data=normalizeWorkspace(workspace);
+ if(!equal(data,workspace))throw Error('Noncanonical workspace; prepare migration first');
  const text=JSON.stringify({schema:SCHEMA,version:SCHEMA_VERSION,workspace:data});
  if(!fits(text))throw Error('Envelope exceeds size limit');
  return text;
@@ -34,7 +35,7 @@ export function prepareLegacyMigration(raw){
  return {originalRaw:raw,envelope,normalizationChanged:!equal(original,workspace),rollback:serializeWorkspace(decodeEnvelope(envelope))};
 }
 export function prepareMigrationFromStorage(storage){
- const raw=storage.getItem('monetiza-os-v4-preview');
+ const raw=storage.getItem(WORKSPACE_KEY);
  if(raw===null)throw Error('No original workspace');
  return prepareLegacyMigration(raw);
 }

@@ -1,7 +1,7 @@
 name: Expansion foundations QA
 on:
-  push:
-    branches: [codex/im-x00-foundations]
+  pull_request:
+    branches: [codex/im001-creator-academy]
   workflow_dispatch:
 permissions:
   contents: read
