@@ -1,0 +1,47 @@
+name: Expansion foundations QA
+on:
+  pull_request:
+    branches: [codex/im001-creator-academy]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: expansion-foundations-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  core:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Runtime
+        run: node --version && npm --version
+      - name: Foundation and regression tests
+        run: npm test
+      - name: Complete tracked inventory
+        run: |
+          git ls-files > tracked-inventory.txt
+          wc -l tracked-inventory.txt
+          sha256sum tracked-inventory.txt
+      - name: Install reproducible dependencies
+        run: npm ci --ignore-scripts --no-fund --no-audit
+      - name: Build and static gate
+        run: npm run build && node scripts/release-check.mjs
+      - name: Dependency audit
+        run: npm audit --audit-level=high
+      - name: Install Chromium
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Isolated IndexedDB browser integration
+        run: npx --no-install playwright test --config=playwright.foundation.config.js
+      - name: RC1 browser regression
+        run: npm run test:e2e
+      - name: Evidence inventory
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: expansion-inventory
+          path: tracked-inventory.txt
+          retention-days: 7
+          if-no-files-found: warn
