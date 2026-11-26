@@ -19,7 +19,7 @@ jobs:
       - name: Runtime
         run: node --version && npm --version
       - name: Core tests
-        run: node --test tests/creator-core.test.js
+        run: npm test
       - name: Reproducible install (no lifecycle scripts)
         run: npm ci --ignore-scripts --no-fund --no-audit
       - name: Build

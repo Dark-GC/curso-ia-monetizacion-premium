@@ -28,3 +28,6 @@ El manifiesto lista hashes y tamaños de los archivos de distribución y comprue
 
 ## Relevo
 Validar ejecución del commit RC1, verificar manifiesto y ZIP, inspeccionar capturas y resolver cualquier regresión. Después presentar una única decisión de lanzamiento con limitaciones explícitas y aceptación del usuario. Evitar ampliar alcance sin necesidad. No pagar, no crear infraestructura pública ni etiquetar STABLE por adelantado.
+
+## Corrección del gate RC1
+QA #52 (9417c8d) falló después de 93 pruebas unitarias y compilación exitosa: Vite usa base './' y el verificador aceptaba únicamente '/assets/'. Se comprueba ahora la referencia relativa './assets/' y la absoluta local '/assets/', existencia exacta de JS/CSS y rechazo de URL externa, traversal, query y rutas codificadas. Se agregan tres pruebas específicas sin ampliar el presupuesto. QA siguiente pendiente. No cambia versión ni datos.
