@@ -304,3 +304,8 @@ html[data-bs-theme="light"] .btn-close-white{filter:none}
 html[data-bs-theme="light"] .toast,html[data-bs-theme="light"] .toast-header{background:#fff;color:var(--os-text);border-color:#ccd6e7}
 html[data-bs-theme="light"] .table{--bs-table-bg:#f0f4fc;--bs-table-color:#253551;--bs-table-border-color:#cbd5e8}
 @media(max-width:575px){.os-top-actions .os-theme-toggle{width:32px;min-width:32px;min-height:34px}.os-top-actions{flex-wrap:wrap;justify-content:flex-end}.os-theme-toggle svg{font-size:16px}}
+
+/* IM-V1-07: skip navigation remains accessible in both themes. */
+.os-skip-link{position:fixed;top:8px;left:8px;z-index:2100;max-width:calc(100vw - 16px);padding:12px 16px;border-radius:8px;background:var(--os-surface);color:var(--os-text);border:2px solid var(--os-primary);transform:translateY(-150%);text-decoration:underline}
+.os-skip-link:focus{transform:none;outline:3px solid var(--os-cyan);outline-offset:2px}
+.os-main:focus-visible{outline:2px solid var(--os-primary);outline-offset:-2px}
