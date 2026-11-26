@@ -346,3 +346,19 @@ test('mentor inference diagnostic uses only test prompt with simulated provider'
  await page.addInitScript(()=>Object.defineProperty(globalThis,'LanguageModel',{configurable:true,value:{availability:async()=> 'available',create:async()=>({prompt:async input=>input.includes('LISTO')?'LISTO':'NO',destroy(){}})}}));await page.goto('/');await navigate(page,'Mentor');await page.getByLabel('Contexto del mentor').fill('Contexto no enviado en prueba');
  await page.getByRole('button',{name:'Probar inferencia local'}).click();await expect(page.getByText('Respuesta esperada recibida',{exact:true})).toBeVisible();await expect(page.getByLabel('Respuesta generativa local')).toHaveCount(0);await page.screenshot({path:testInfo.outputPath('mentor-diagnostic-mock.png'),animations:'disabled'});
 });
+
+test('restore preview rejects duplicate IDs and retains current data on storage failure',async({page})=>{
+ await page.goto('/');await page.evaluate(()=>localStorage.setItem('monetiza-os-v4-preview',JSON.stringify({done:['prompt'],projects:[],records:[]})));await page.reload();
+ const p={id:'p',method:'ads',title:'Nuevo proyecto',done:[]};const invalid={done:[],projects:[p,p],records:[]};
+ const picker=page.getByLabel('Restaurar respaldo JSON',{exact:true});await picker.setInputFiles({name:'invalid.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(invalid))});await expect(page.getByText('Respaldo inválido o demasiado grande. No se cambió nada.')).toBeVisible();await expect(page.getByText('1 de 10 prácticas registradas')).toBeVisible();
+ await picker.setInputFiles({name:'valid.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({done:[],projects:[p],records:[]}))});const d=page.getByRole('dialog');await expect(d.getByRole('button',{name:'Descargar respaldo actual'})).toBeVisible();
+ await page.evaluate(()=>{const orig=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='monetiza-os-v4-preview')throw new DOMException('quota','QuotaExceededError');return orig.call(this,k,v)}});
+ await d.getByRole('button',{name:'Restaurar',exact:true}).click();await expect(page.getByText('No se pudo escribir el respaldo. Los datos anteriores se conservan.')).toBeVisible();await expect(d).toBeVisible();await d.getByRole('button',{name:'Cancelar',exact:true}).click();await expect(page.getByText('1 de 10 prácticas registradas')).toBeVisible();
+ await page.reload();await expect(page.getByText('1 de 10 prácticas registradas')).toBeVisible();
+ await page.getByLabel('Restaurar respaldo JSON',{exact:true}).setInputFiles({name:'valid.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({done:[],projects:[p],records:[]}))});await d.getByRole('button',{name:'Restaurar',exact:true}).click();await expect(d).toHaveCount(0);await page.reload();await navigate(page,'Proyectos');await expect(page.getByRole('heading',{name:'Nuevo proyecto',exact:true})).toBeVisible();
+});
+test('damaged workspace remains recoverable without silent reset',async({page})=>{
+ await page.goto('/');await page.evaluate(()=>localStorage.setItem('monetiza-os-v4-preview','{broken'));await page.reload();await expect(page.getByRole('button',{name:'Descargar datos originales',exact:true})).toBeVisible();
+ const dl=page.waitForEvent('download');await page.getByRole('button',{name:'Descargar datos originales',exact:true}).click();expect((await dl).suggestedFilename()).toBe('monetiza-datos-originales.json');
+ expect(await page.evaluate(()=>localStorage.getItem('monetiza-os-v4-preview'))).toBe('{broken');await page.getByRole('button',{name:'Iniciar espacio nuevo',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Iniciar nuevo',exact:true}).click();await expect(page.getByRole('button',{name:'Descargar datos originales',exact:true})).toHaveCount(0);await page.reload();await expect(page.getByText('0 de 10 prácticas registradas')).toBeVisible();
+});
