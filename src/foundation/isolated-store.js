@@ -1,5 +1,5 @@
 // Experimental isolated IndexedDB store. Never reads/writes the legacy localStorage key.
-import {prepareLegacyMigration,decodeEnvelope,encodeEnvelope,rollbackEnvelope,MAX_BACKUP_BYTES} from './workspace-envelope.js';
+import {prepareLegacyMigration,decodeEnvelope,encodeEnvelope,rollbackEnvelope} from './workspace-envelope.js';
 import {validateLedger,reserveOperation,transitionOperation} from './audit-contract.js';
 import {normalizeMeasurement,compareMeasurements} from './benchmark-contract.js';
 export const DB_NAME='monetiza-os-x-lab-v1';
