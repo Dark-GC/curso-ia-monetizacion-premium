@@ -1,0 +1,22 @@
+name: Expansion foundations QA
+on:
+  push:
+    branches: [codex/im-x00-foundations]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: expansion-foundations-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  core:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Runtime
+        run: node --version && npm --version
+      - name: Foundation and regression tests
+        run: npm test
